@@ -77,6 +77,12 @@
             <span>Import PDF</span>
           </button>
 
+          <!-- Open Files Folder (Electron only, shown/hidden by JS) -->
+          <button id="btnOpenFilesFolder" class="btn btn-secondary btn-sm" title="Open GoodNotes data folder in File Manager" style="display:none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <span>Files Folder</span>
+          </button>
+
           <!-- New Notebook Button -->
           <button id="btnLibraryNewNotebook" class="btn btn-primary btn-sm" title="Create New Notebook">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -143,6 +149,8 @@
         </main>
       </div>
     </div>
+    <!-- Electron: shows local file path (hidden in browser) -->
+    <div id="electronDataPathInfo" class="electron-path-info" style="display:none;"></div>
 
     <!-- ======================================================== -->
     <!-- 1. DOCUMENT EDITOR VIEW                                  -->

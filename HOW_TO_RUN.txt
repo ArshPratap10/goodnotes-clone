@@ -1,0 +1,16 @@
+=== GoodNotes Desktop App ===
+
+RUN:
+  Double-click launch_electron.bat
+  OR: npm start
+
+NOTEBOOK FILES LOCATION:
+  Documents\GoodNotes_App_Data\notebooks\
+  (Each notebook = one .gnotes JSON file visible in File Manager)
+
+EXPORTS (PDF/PNG):
+  Documents\GoodNotes_App_Data\exports\
+
+SETTINGS:
+  Documents\GoodNotes_App_Data\settings.json
+

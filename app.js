@@ -183,6 +183,9 @@ class GoodNotesApp {
       const saved = await this.storage.loadNotebook();
       if (saved && saved.pages && saved.pages.length > 0) {
         this.notebook = saved;
+        // Restore persisted undo/redo history from saved doc
+        this.undoStack = Array.isArray(saved._undoStack) ? saved._undoStack : [];
+        this.redoStack = Array.isArray(saved._redoStack) ? saved._redoStack : [];
         this.viewMode = 'vertical';
         if (saved.pdfSource) {
           try {
@@ -355,6 +358,7 @@ class GoodNotesApp {
     this.dom.btnViewGrid = document.getElementById('btnViewGrid');
     this.dom.btnViewList = document.getElementById('btnViewList');
     this.dom.btnLibraryImportPdf = document.getElementById('btnLibraryImportPdf');
+    this.dom.btnOpenFilesFolder = document.getElementById('btnOpenFilesFolder');
     this.dom.btnLibraryNewNotebook = document.getElementById('btnLibraryNewNotebook');
     this.dom.btnResumeEditor = document.getElementById('btnResumeEditor');
     this.dom.btnLibraryThemeToggle = document.getElementById('btnLibraryThemeToggle');
@@ -549,9 +553,17 @@ class GoodNotesApp {
 
     // Library Import PDF
     if (this.dom.btnLibraryImportPdf) {
-      this.dom.btnLibraryImportPdf.addEventListener('click', () => {
-        this.dom.pdfFileInput.click();
+      this.dom.btnLibraryImportPdf.addEventListener('click', async () => {
+        await this._triggerPdfImport();
       });
+    }
+
+    // Open Files Folder (Electron only)
+    if (this.dom.btnOpenFilesFolder) {
+      if (window.electronAPI && window.electronAPI.isElectron) {
+        this.dom.btnOpenFilesFolder.style.display = '';
+      }
+      this.dom.btnOpenFilesFolder.addEventListener('click', () => this.storage.openDataFolder());
     }
 
     // New Notebook Openers
@@ -883,9 +895,9 @@ class GoodNotesApp {
       }
     });
 
-    this.dom.btnImportPdf.addEventListener('click', () => {
-      this.dom.pdfFileInput.click();
+    this.dom.btnImportPdf.addEventListener('click', async () => {
       this.dom.docsMenuDropdown.classList.add('hidden');
+      await this._triggerPdfImport();
     });
 
     this.dom.pdfFileInput.addEventListener('change', async (e) => {
@@ -3384,6 +3396,25 @@ class GoodNotesApp {
   /**
    * PDF Document Import
    */
+  async _triggerPdfImport() {
+    if (this.storage.isElectron) {
+      const result = await this.storage.openPdfDialog();
+      if (!result) return;
+      try {
+        const bytes = Uint8Array.from(atob(result.base64), c => c.charCodeAt(0));
+        const blob = new Blob([bytes], { type: 'application/pdf' });
+        // Give blob a name property so handlePdfImport can read file.name
+        Object.defineProperty(blob, 'name', { value: result.name });
+        await this.handlePdfImport(blob);
+      } catch (err) {
+        console.error('Electron PDF import failed:', err);
+        this.showToast('PDF import failed: ' + err.message);
+      }
+    } else {
+      this.dom.pdfFileInput.click();
+    }
+  }
+
   async handlePdfImport(file) {
     try {
       this.showToast('Loading PDF document...');
@@ -3858,6 +3889,9 @@ class GoodNotesApp {
     this.updateSaveIndicator('saving');
     if (this.storage && this.notebook) {
       try {
+        // Persist undo/redo stacks with the notebook so they survive reopen
+        this.notebook._undoStack = this.undoStack || [];
+        this.notebook._redoStack = this.redoStack || [];
         await this.storage.saveNotebookInstant(this.notebook);
         this.updateSaveIndicator('saved');
       } catch (err) {
@@ -4109,8 +4143,9 @@ class GoodNotesApp {
       }
 
       this.notebook = doc;
-      this.undoStack = [];
-      this.redoStack = [];
+      // Restore persisted undo/redo history
+      this.undoStack = Array.isArray(doc._undoStack) ? doc._undoStack : [];
+      this.redoStack = Array.isArray(doc._redoStack) ? doc._redoStack : [];
 
       // Restore PDF source if present
       if (doc.pdfSource) {
@@ -4379,6 +4414,21 @@ window.addEventListener('DOMContentLoaded', () => {
   const app = new GoodNotesApp();
   window.goodNotesApp = app;
   app.init();
+
+  // Electron-specific setup
+  if (window.electronAPI && window.electronAPI.isElectron) {
+    // Show data folder path in library footer
+    window.electronAPI.getDataDir().then(r => {
+      const el = document.getElementById('electronDataPathInfo');
+      if (el && r.success) {
+        el.textContent = `📁 Notebooks saved to: ${r.notebooksDir}`;
+        el.style.display = 'block';
+      }
+    });
+    // Show Files Folder button
+    const folderBtn = document.getElementById('btnOpenFilesFolder');
+    if (folderBtn) folderBtn.style.display = '';
+  }
 
   window.addEventListener('beforeunload', () => {
     if (app.storage && app.notebook) {

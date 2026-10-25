@@ -1,24 +1,70 @@
 /**
  * @file storageManager.js
  * @description Storage & Export Engine for GoodNotes.
- * Manages IndexedDB persistence, auto-saving, PNG image export,
- * vector-annotated PDF export using pdf-lib/jspdf, and .gnotes project file backup.
+ * In Electron desktop mode: reads/writes .gnotes JSON files to
+ *   Documents/GoodNotes_App_Data/notebooks/ (visible in File Manager).
+ * In browser mode: falls back to IndexedDB persistence.
+ * Also handles PNG/PDF export and .gnotes project file backup.
  */
 
 export class StorageManager {
   constructor() {
+    // Electron detection
+    this.isElectron = !!(window.electronAPI && window.electronAPI.isElectron);
+
+    // IndexedDB fields (browser fallback)
     this.dbName = 'GoodNotesWindowsDB';
     this.dbVersion = 1;
     this.db = null;
+
+    // Auto-save state
     this.autoSaveTimer = null;
     this.isSaving = false;
     this.pendingDocToSave = null;
     this.activeSavePromise = null;
   }
 
-  /**
-   * Initializes IndexedDB database.
-   */
+  // ─── Electron File-System API ──────────────────────────────────────────────
+
+  async saveNotebookElectron(notebookDoc) {
+    const record = this._serializeNotebook(notebookDoc);
+    const result = await window.electronAPI.saveNotebook(record);
+    if (!result.success) throw new Error(result.error);
+    return true;
+  }
+
+  async loadNotebookElectron(notebookId = null) {
+    const result = await window.electronAPI.loadNotebook(notebookId || null);
+    if (!result.success) return null;
+    return result.data;
+  }
+
+  async getAllNotebooksElectron() {
+    const result = await window.electronAPI.listNotebooks();
+    if (!result.success) return [];
+    return result.data;
+  }
+
+  async deleteNotebookElectron(notebookId) {
+    const result = await window.electronAPI.deleteNotebook(notebookId);
+    if (!result.success) throw new Error(result.error);
+    return true;
+  }
+
+  async duplicateNotebookElectron(notebookId) {
+    const result = await window.electronAPI.duplicateNotebook(notebookId);
+    if (!result.success) throw new Error(result.error);
+    return result.data;
+  }
+
+  async renameNotebookElectron(notebookId, newTitle) {
+    const result = await window.electronAPI.renameNotebook(notebookId, newTitle);
+    if (!result.success) throw new Error(result.error);
+    return true;
+  }
+
+  // ─── IndexedDB (browser fallback) ─────────────────────────────────────────
+
   async initDB() {
     if (this.db) return this.db;
 
@@ -48,67 +94,14 @@ export class StorageManager {
     });
   }
 
-  /**
-   * Saves a notebook document to IndexedDB.
-   * 
-   * @param {Object} notebookDoc 
-   */
-  async saveNotebook(notebookDoc) {
+  async saveNotebookIDB(notebookDoc) {
     await this.initDB();
+    const record = this._serializeNotebook(notebookDoc);
 
     return new Promise((resolve, reject) => {
       try {
         const tx = this.db.transaction(['notebooks'], 'readwrite');
         const store = tx.objectStore('notebooks');
-
-        // Deep copy clean data without circular references
-        const record = {
-          id: notebookDoc.id || 'default_notebook',
-          title: notebookDoc.title || 'Untitled Notebook',
-          coverTheme: notebookDoc.coverTheme || 'modern-blue',
-          isFavorite: Boolean(notebookDoc.isFavorite),
-          isTrash: Boolean(notebookDoc.isTrash),
-          createdAt: notebookDoc.createdAt || Date.now(),
-          updatedAt: Date.now(),
-          currentPageIndex: notebookDoc.currentPageIndex || 0,
-          pdfSource: notebookDoc.pdfSource || null,
-          viewMode: notebookDoc.viewMode || 'vertical',
-          outline: notebookDoc.outline || [],
-          pages: (notebookDoc.pages || []).map(p => ({
-            pageNumber: p.pageNumber,
-            width: p.width,
-            height: p.height,
-            template: p.template || 'ruled',
-            paperColor: p.paperColor || 'cream',
-            pdfPageNumber: p.pdfPageNumber || null,
-            isBookmarked: Boolean(p.isBookmarked),
-            strokes: (p.strokes || []).map(s => ({
-              id: s.id,
-              tool: s.tool,
-              color: s.color,
-              width: s.width,
-              opacity: s.opacity,
-              blendMode: s.blendMode,
-              points: s.points
-            })),
-            shapes: p.shapes || [],
-            textBoxes: p.textBoxes || [],
-            stickyNotes: p.stickyNotes || [],
-            images: (p.images || []).map(img => ({
-              id: img.id,
-              x: img.x,
-              y: img.y,
-              width: img.width,
-              height: img.height,
-              naturalWidth: img.naturalWidth || img.width,
-              naturalHeight: img.naturalHeight || img.height,
-              src: img.src || img.dataUrl,
-              dataUrl: img.dataUrl || img.src,
-              aspectRatio: img.aspectRatio || (img.width / img.height)
-            }))
-          }))
-        };
-
         const putReq = store.put(record);
         putReq.onsuccess = () => resolve(true);
         putReq.onerror = (e) => reject(e);
@@ -118,13 +111,7 @@ export class StorageManager {
     });
   }
 
-  /**
-   * Loads the most recent notebook or a specific ID.
-   * 
-   * @param {string} [notebookId] 
-   * @returns {Promise<Object|null>}
-   */
-  async loadNotebook(notebookId = null) {
+  async loadNotebookIDB(notebookId = null) {
     await this.initDB();
 
     return new Promise((resolve, reject) => {
@@ -137,16 +124,11 @@ export class StorageManager {
           req.onsuccess = () => resolve(req.result || null);
           req.onerror = (e) => reject(e);
         } else {
-          // Get the most recently updated notebook
           const index = store.index('updatedAt');
           const openCursor = index.openCursor(null, 'prev');
           openCursor.onsuccess = (e) => {
             const cursor = e.target.result;
-            if (cursor) {
-              resolve(cursor.value);
-            } else {
-              resolve(null);
-            }
+            resolve(cursor ? cursor.value : null);
           };
           openCursor.onerror = (e) => reject(e);
         }
@@ -156,13 +138,7 @@ export class StorageManager {
     });
   }
 
-  /**
-   * Retrieves summary metadata of all notebooks in IndexedDB for the Library view.
-   * Excludes heavy stroke vectors to keep the query blazing fast.
-   * 
-   * @returns {Promise<Array<Object>>}
-   */
-  async getAllNotebooks() {
+  async getAllNotebooksIDB() {
     await this.initDB();
 
     return new Promise((resolve, reject) => {
@@ -203,10 +179,7 @@ export class StorageManager {
     });
   }
 
-  /**
-   * Deletes a notebook by ID from IndexedDB.
-   */
-  async deleteNotebook(notebookId) {
+  async deleteNotebookIDB(notebookId) {
     await this.initDB();
 
     return new Promise((resolve, reject) => {
@@ -222,10 +195,47 @@ export class StorageManager {
     });
   }
 
+  // ─── Public Unified API (auto-dispatches to Electron or IDB) ──────────────
+
+  /**
+   * Saves a notebook document to disk (Electron) or IndexedDB (browser).
+   */
+  async saveNotebook(notebookDoc) {
+    if (this.isElectron) return this.saveNotebookElectron(notebookDoc);
+    return this.saveNotebookIDB(notebookDoc);
+  }
+
+  /**
+   * Loads the most recent notebook or a specific ID.
+   */
+  async loadNotebook(notebookId = null) {
+    if (this.isElectron) return this.loadNotebookElectron(notebookId);
+    return this.loadNotebookIDB(notebookId);
+  }
+
+  /**
+   * Retrieves summary metadata of all notebooks.
+   */
+  async getAllNotebooks() {
+    if (this.isElectron) return this.getAllNotebooksElectron();
+    return this.getAllNotebooksIDB();
+  }
+
+  /**
+   * Deletes a notebook by ID.
+   */
+  async deleteNotebook(notebookId) {
+    if (this.isElectron) return this.deleteNotebookElectron(notebookId);
+    return this.deleteNotebookIDB(notebookId);
+  }
+
   /**
    * Duplicates an existing notebook with a new unique ID and "(Copy)" suffix.
    */
   async duplicateNotebook(notebookId) {
+    if (this.isElectron) return this.duplicateNotebookElectron(notebookId);
+
+    // Browser fallback
     const original = await this.loadNotebook(notebookId);
     if (!original) throw new Error('Notebook not found for duplication.');
 
@@ -243,9 +253,11 @@ export class StorageManager {
   }
 
   /**
-   * Renames a notebook in IndexedDB.
+   * Renames a notebook.
    */
   async renameNotebook(notebookId, newTitle) {
+    if (this.isElectron) return this.renameNotebookElectron(notebookId, newTitle);
+
     const doc = await this.loadNotebook(notebookId);
     if (!doc) throw new Error('Notebook not found for rename.');
     doc.title = newTitle;
@@ -267,11 +279,8 @@ export class StorageManager {
   }
 
   /**
-   * Immediately saves the notebook document to IndexedDB without delay.
+   * Immediately saves the notebook document without delay.
    * Serializes consecutive rapid saves so no updates are ever dropped.
-   * 
-   * @param {Object} notebookDoc 
-   * @returns {Promise<boolean>}
    */
   async saveNotebookInstant(notebookDoc) {
     if (!notebookDoc) return false;
@@ -318,14 +327,126 @@ export class StorageManager {
     }, delayMs);
   }
 
+  // ─── Settings (Electron saves to file, browser uses localStorage) ──────────
+
+  async saveSettings(settings) {
+    if (this.isElectron) {
+      await window.electronAPI.saveSettings(settings);
+    } else {
+      try {
+        const existing = JSON.parse(localStorage.getItem('goodnotes_settings') || '{}');
+        localStorage.setItem('goodnotes_settings', JSON.stringify({ ...existing, ...settings }));
+      } catch (e) { /* noop */ }
+    }
+  }
+
+  async loadSettings() {
+    if (this.isElectron) {
+      const result = await window.electronAPI.loadSettings();
+      return result.success ? (result.data || {}) : {};
+    } else {
+      try {
+        return JSON.parse(localStorage.getItem('goodnotes_settings') || '{}');
+      } catch (e) { return {}; }
+    }
+  }
+
+  // ─── Helper: Open file manager ─────────────────────────────────────────────
+
+  async openDataFolder() {
+    if (this.isElectron) {
+      await window.electronAPI.openDataFolder();
+    }
+  }
+
+  async openNotebooksFolder() {
+    if (this.isElectron) {
+      await window.electronAPI.openNotebooksFolder();
+    }
+  }
+
+  async getDataDir() {
+    if (this.isElectron) {
+      const result = await window.electronAPI.getDataDir();
+      return result.success ? result : null;
+    }
+    return null;
+  }
+
+  // ─── PDF Import via Electron dialog ───────────────────────────────────────
+
+  /**
+   * Opens native file picker for PDF (Electron) or triggers HTML input (browser).
+   * Returns { filePath, base64, name } or null.
+   */
+  async openPdfDialog() {
+    if (this.isElectron) {
+      const result = await window.electronAPI.openPdfDialog();
+      if (!result.success) return null;
+      return result;
+    }
+    // Browser fallback: return null (caller should use <input type=file>)
+    return null;
+  }
+
+  // ─── Serialization Helper ──────────────────────────────────────────────────
+
+  _serializeNotebook(notebookDoc) {
+    return {
+      id: notebookDoc.id || 'default_notebook',
+      title: notebookDoc.title || 'Untitled Notebook',
+      coverTheme: notebookDoc.coverTheme || 'modern-blue',
+      isFavorite: Boolean(notebookDoc.isFavorite),
+      isTrash: Boolean(notebookDoc.isTrash),
+      createdAt: notebookDoc.createdAt || Date.now(),
+      updatedAt: Date.now(),
+      currentPageIndex: notebookDoc.currentPageIndex || 0,
+      pdfSource: notebookDoc.pdfSource || null,
+      viewMode: notebookDoc.viewMode || 'vertical',
+      outline: notebookDoc.outline || [],
+      // Persist undo/redo history so it survives notebook close/reopen
+      _undoStack: Array.isArray(notebookDoc._undoStack) ? notebookDoc._undoStack : [],
+      _redoStack: Array.isArray(notebookDoc._redoStack) ? notebookDoc._redoStack : [],
+      pages: (notebookDoc.pages || []).map(p => ({
+        pageNumber: p.pageNumber,
+        width: p.width,
+        height: p.height,
+        template: p.template || 'ruled',
+        paperColor: p.paperColor || 'cream',
+        pdfPageNumber: p.pdfPageNumber || null,
+        isBookmarked: Boolean(p.isBookmarked),
+        strokes: (p.strokes || []).map(s => ({
+          id: s.id,
+          tool: s.tool,
+          color: s.color,
+          width: s.width,
+          opacity: s.opacity,
+          blendMode: s.blendMode,
+          points: s.points
+        })),
+        shapes: p.shapes || [],
+        textBoxes: p.textBoxes || [],
+        stickyNotes: p.stickyNotes || [],
+        images: (p.images || []).map(img => ({
+          id: img.id,
+          x: img.x,
+          y: img.y,
+          width: img.width,
+          height: img.height,
+          naturalWidth: img.naturalWidth || img.width,
+          naturalHeight: img.naturalHeight || img.height,
+          src: img.src || img.dataUrl,
+          dataUrl: img.dataUrl || img.src,
+          aspectRatio: img.aspectRatio || (img.width / img.height)
+        }))
+      }))
+    };
+  }
+
+  // ─── Export Methods ────────────────────────────────────────────────────────
+
   /**
    * Exports the current page as a high-resolution PNG image download.
-   * 
-   * @param {HTMLCanvasElement} bgCanvas 
-   * @param {HTMLCanvasElement} vectorCanvas 
-   * @param {Array<Object>} textBoxes 
-   * @param {Array<Object>} stickyNotes 
-   * @param {string} filename 
    */
   exportPageToPNG(bgCanvas, vectorCanvas, textBoxes = [], stickyNotes = [], filename = 'GoodNotes_Page.png') {
     const width = bgCanvas.width;
@@ -336,39 +457,33 @@ export class StorageManager {
     exportCanvas.height = height;
     const ctx = exportCanvas.getContext('2d');
 
-    // 1. Draw Background (Paper / PDF)
     ctx.drawImage(bgCanvas, 0, 0);
-
-    // 2. Draw Vector Inking Layer
     ctx.drawImage(vectorCanvas, 0, 0);
 
-    // 3. Render Sticky Notes to Canvas
     const dpr = width / (bgCanvas.style.width ? parseFloat(bgCanvas.style.width) : width);
     const scale = dpr || 1;
 
-    for (const note of stickyNotes) {
-      this.drawStickyNoteToCtx(ctx, note, scale);
-    }
+    for (const note of stickyNotes) this.drawStickyNoteToCtx(ctx, note, scale);
+    for (const tb of textBoxes) this.drawTextBoxToCtx(ctx, tb, scale);
 
-    // 4. Render Text Boxes to Canvas
-    for (const tb of textBoxes) {
-      this.drawTextBoxToCtx(ctx, tb, scale);
+    if (this.isElectron) {
+      const dataUrl = exportCanvas.toDataURL('image/png', 1.0);
+      const base64 = dataUrl.split(',')[1];
+      window.electronAPI.saveExport({ filename, base64, mimeType: 'image/png' }).then(result => {
+        if (result.success) {
+          this._showToast(`Saved to: ${result.path}`);
+        }
+      });
+    } else {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = exportCanvas.toDataURL('image/png', 1.0);
+      link.click();
     }
-
-    // Trigger download
-    const link = document.createElement('a');
-    link.download = filename;
-    link.href = exportCanvas.toDataURL('image/png', 1.0);
-    link.click();
   }
 
   /**
    * Exports the full multi-page notebook as an annotated PDF file.
-   * Leverages pdf-lib if loaded, or jspdf as secondary fallback.
-   * 
-   * @param {Object} notebookDoc 
-   * @param {Function} renderPageComposite - Function returning Promise<HTMLCanvasElement> for page i
-   * @param {string} [filename]
    */
   async exportToPDF(notebookDoc, renderPageComposite, filename = null) {
     const name = filename || `${notebookDoc.title || 'GoodNotes'}_Annotated.pdf`;
@@ -385,17 +500,19 @@ export class StorageManager {
 
         const pngImage = await pdfDoc.embedPng(pngBytes);
         const page = pdfDoc.addPage([pageData.width, pageData.height]);
-
-        page.drawImage(pngImage, {
-          x: 0,
-          y: 0,
-          width: pageData.width,
-          height: pageData.height
-        });
+        page.drawImage(pngImage, { x: 0, y: 0, width: pageData.width, height: pageData.height });
       }
 
       const pdfBytes = await pdfDoc.save();
-      this.downloadBlob(new Blob([pdfBytes], { type: 'application/pdf' }), name);
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+
+      if (this.isElectron) {
+        const base64 = await this._blobToBase64(blob);
+        const result = await window.electronAPI.saveExport({ filename: name, base64, mimeType: 'application/pdf' });
+        if (result.success) this._showToast(`PDF saved to: ${result.path}`);
+      } else {
+        this.downloadBlob(blob, name);
+      }
       return true;
     }
 
@@ -409,11 +526,7 @@ export class StorageManager {
         const orientation = pageData.width > pageData.height ? 'landscape' : 'portrait';
 
         if (i === 0) {
-          pdf = new jsPDF({
-            orientation,
-            unit: 'pt',
-            format: [pageData.width, pageData.height]
-          });
+          pdf = new jsPDF({ orientation, unit: 'pt', format: [pageData.width, pageData.height] });
         } else {
           pdf.addPage([pageData.width, pageData.height], orientation);
         }
@@ -423,11 +536,16 @@ export class StorageManager {
         pdf.addImage(imgData, 'JPEG', 0, 0, pageData.width, pageData.height);
       }
 
-      pdf.save(name);
+      if (this.isElectron) {
+        const base64 = pdf.output('datauristring').split(',')[1];
+        const result = await window.electronAPI.saveExport({ filename: name, base64, mimeType: 'application/pdf' });
+        if (result.success) this._showToast(`PDF saved to: ${result.path}`);
+      } else {
+        pdf.save(name);
+      }
       return true;
     }
 
-    // If neither is present, prompt user or alert
     throw new Error('PDF export engine (pdf-lib or jspdf) is not currently loaded.');
   }
 
@@ -438,12 +556,19 @@ export class StorageManager {
     const name = filename || `${notebookDoc.title || 'GoodNotes'}_Project.gnotes`;
     const jsonStr = JSON.stringify(notebookDoc, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
-    this.downloadBlob(blob, name);
+
+    if (this.isElectron) {
+      const base64 = btoa(jsonStr);
+      window.electronAPI.saveExport({ filename: name, base64, mimeType: 'application/json' }).then(result => {
+        if (result.success) this._showToast(`Project saved to: ${result.path}`);
+      });
+    } else {
+      this.downloadBlob(blob, name);
+    }
   }
 
-  /**
-   * Helper: converts data URL string to Uint8Array for pdf-lib
-   */
+  // ─── Utility Helpers ───────────────────────────────────────────────────────
+
   dataURLToUint8(dataURL) {
     const parts = dataURL.split(';base64,');
     const raw = atob(parts[1]);
@@ -455,9 +580,6 @@ export class StorageManager {
     return uInt8Array;
   }
 
-  /**
-   * Helper: triggers browser blob download
-   */
   downloadBlob(blob, filename) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -469,9 +591,28 @@ export class StorageManager {
     URL.revokeObjectURL(url);
   }
 
-  /**
-   * Helper: draws a sticky note onto a canvas context for image/PDF export
-   */
+  _blobToBase64(blob) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  _showToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'storage-toast';
+    toast.textContent = msg;
+    toast.style.cssText = `
+      position:fixed;bottom:24px;right:24px;background:#1e40af;color:#fff;
+      padding:12px 20px;border-radius:10px;font-size:13px;z-index:99999;
+      box-shadow:0 4px 24px rgba(0,0,0,0.3);max-width:380px;word-break:break-all;
+      animation:fadeInUp 0.3s ease;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
   drawStickyNoteToCtx(ctx, note, scale = 1) {
     ctx.save();
     const x = note.x * scale;
@@ -479,21 +620,16 @@ export class StorageManager {
     const w = (note.width || 180) * scale;
     const h = (note.height || 180) * scale;
 
-    // Sticky note shadow
     ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
     ctx.shadowBlur = 8 * scale;
     ctx.shadowOffsetY = 4 * scale;
-
-    // Background color
     ctx.fillStyle = note.color || '#FEF08A';
     ctx.beginPath();
     ctx.roundRect ? ctx.roundRect(x, y, w, h, 6 * scale) : ctx.rect(x, y, w, h);
     ctx.fill();
 
-    // Reset shadow
     ctx.shadowColor = 'transparent';
 
-    // Text content
     if (note.text) {
       ctx.fillStyle = '#1e293b';
       ctx.font = `${14 * scale}px system-ui, -apple-system, sans-serif`;
@@ -508,9 +644,6 @@ export class StorageManager {
     ctx.restore();
   }
 
-  /**
-   * Helper: draws a text box onto a canvas context for image/PDF export
-   */
   drawTextBoxToCtx(ctx, tb, scale = 1) {
     if (!tb.text) return;
 
