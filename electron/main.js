@@ -1,4 +1,4 @@
-﻿const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -224,6 +224,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     title: 'GoodNotes App',
+    icon: path.join(__dirname, 'icon.ico'),
     backgroundColor: '#0f172a',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
