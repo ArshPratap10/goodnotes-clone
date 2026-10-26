@@ -114,8 +114,15 @@ class GoodNotesApp {
     this.redoStack = [];
     this.maxHistory = 40;
 
+    // Save & Auto-save Management
+    this.isDirty = false;
+    this.autoSaveInterval = null;
+
+    // Toolbar Mode ('ribbon' | 'floating')
+    this.toolbarMode = localStorage.getItem('goodnotes_toolbar_mode') || 'ribbon';
+
     // Library View & Home Screen State
-    this.currentView = 'editor'; // 'editor' | 'library'
+    this.currentView = 'library'; // 'editor' | 'library'
     this.libraryFilter = 'all'; // 'all' | 'favorites' | 'recent' | 'pdfs'
     this.librarySort = 'recent'; // 'recent' | 'title' | 'pages'
     this.libraryViewMode = 'grid'; // 'grid' | 'list'
@@ -128,22 +135,8 @@ class GoodNotesApp {
       paperColor: 'cream'
     };
 
-    // Notebook Data Model
-    this.notebook = {
-      id: 'notebook_' + Date.now().toString(36),
-      title: 'Lecture Notes 01',
-      coverTheme: 'modern-blue',
-      isFavorite: false,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      currentPageIndex: 0,
-      pdfSource: null,
-      outline: [],
-      viewMode: 'vertical',
-      pages: [
-        this.createDefaultPage(1, 'ruled', 'cream', 794, 1123)
-      ]
-    };
+    // Notebook Data Model (null until user opens or creates a notebook)
+    this.notebook = null;
 
     // Cache DOM Elements
     this.dom = {};
@@ -177,43 +170,35 @@ class GoodNotesApp {
     this.bindEvents();
     this.bindKeyboardShortcuts();
     this.bindViewportScroll();
+    this.bindFloatingToolbarEvents();
 
-    // Load saved notebook from IndexedDB if available
-    try {
-      const saved = await this.storage.loadNotebook();
-      if (saved && saved.pages && saved.pages.length > 0) {
-        this.notebook = saved;
-        // Restore persisted undo/redo history from saved doc
-        this.undoStack = Array.isArray(saved._undoStack) ? saved._undoStack : [];
-        this.redoStack = Array.isArray(saved._redoStack) ? saved._redoStack : [];
-        this.viewMode = 'vertical';
-        if (saved.pdfSource) {
-          try {
-            await this.pdfManager.loadPdf(saved.pdfSource);
-          } catch (pdfErr) {
-            console.warn('Could not restore PDF source on startup:', pdfErr);
-          }
-        }
-        this.dom.docTitleInput.value = saved.title || 'Untitled Notebook';
-        this.showToast('Restored previous notebook session');
-      } else {
-        // Save initial default notebook so it appears in library
-        await this.storage.saveNotebookInstant(this.notebook);
-      }
-    } catch (e) {
-      console.warn('Could not load previous session:', e);
-    }
+    // Start auto-save timer: saves every 1 minute if modified
+    this.startAutoSaveTimer();
 
-    // Initial render
+    // Restore toolbar mode preference
+    this.setToolbarMode(this.toolbarMode, false);
+
+    // Initial controls state
     this.viewMode = 'vertical';
     this.updateColorSlotButtons();
     this.updateThicknessControlsForTool(this.activeTool, this.activeWidth);
-    this.renderCurrentPage();
-    this.renderThumbnailsSidebar();
-    this.renderBookmarksList();
-    this.renderOutlineList();
-    this.updatePageCounter();
-    this.updateHistoryButtons();
+
+    // Display Electron data path in footer if running in Electron
+    if (this.storage && this.storage.isElectron) {
+      try {
+        const info = await window.electronAPI.getDataDir();
+        if (info && info.success && this.dom.electronDataPathInfo) {
+          this.dom.electronDataPathInfo.style.display = 'block';
+          this.dom.electronDataPathInfo.innerHTML = `📁 Storage folder: <span style="color:#94a3b8; user-select:all;">${info.notebooksDir}</span> <button id="btnOpenDataDirFooter" style="margin-left:8px; background:rgba(255,255,255,0.08); border:none; color:#cbd5e1; padding:2px 8px; border-radius:4px; cursor:pointer;">Open Folder</button>`;
+          const btn = document.getElementById('btnOpenDataDirFooter');
+          if (btn) btn.addEventListener('click', () => window.electronAPI.openNotebooksFolder());
+        }
+      } catch (e) {}
+    }
+
+    // Launch directly into Library View (Home Screen)
+    // Do NOT automatically create or open any notebook on startup!
+    await this.showLibraryView();
   }
 
   /**
@@ -386,6 +371,37 @@ class GoodNotesApp {
     this.dom.newPaperColorChoices = document.querySelectorAll('#newNotebookPaperColorPicker .color-choice');
 
     this.dom.btnOpenLibrary = document.getElementById('btnOpenLibrary');
+
+    // Floating Minimalist Pill Toolbar Elements
+    this.dom.floatingToolbar = document.getElementById('floatingToolbar');
+    this.dom.btnToggleToolbarMode = document.getElementById('btnToggleToolbarMode');
+    this.dom.btnMiniSelect = document.getElementById('btnMiniSelect');
+    this.dom.btnMiniAdd = document.getElementById('btnMiniAdd');
+    this.dom.miniAddDropdown = document.getElementById('miniAddDropdown');
+    this.dom.btnMiniAddPage = document.getElementById('btnMiniAddPage');
+    this.dom.btnMiniAddImage = document.getElementById('btnMiniAddImage');
+    this.dom.btnMiniAddSticky = document.getElementById('btnMiniAddSticky');
+    this.dom.btnMiniText = document.getElementById('btnMiniText');
+    this.dom.btnMiniPen = document.getElementById('btnMiniPen');
+    this.dom.btnMiniEraser = document.getElementById('btnMiniEraser');
+    this.dom.btnMiniShapes = document.getElementById('btnMiniShapes');
+    this.dom.btnMiniLaser = document.getElementById('btnMiniLaser');
+    this.dom.btnMiniColor = document.getElementById('btnMiniColor');
+    this.dom.miniColorDot = document.getElementById('miniColorDot');
+    this.dom.miniColorDropdown = document.getElementById('miniColorDropdown');
+    this.dom.miniCustomColorPicker = document.getElementById('miniCustomColorPicker');
+    this.dom.btnMiniUndo = document.getElementById('btnMiniUndo');
+    this.dom.btnMiniRedo = document.getElementById('btnMiniRedo');
+    this.dom.btnMiniClear = document.getElementById('btnMiniClear');
+    this.dom.btnMiniExport = document.getElementById('btnMiniExport');
+    this.dom.btnMiniMore = document.getElementById('btnMiniMore');
+    this.dom.miniMoreDropdown = document.getElementById('miniMoreDropdown');
+    this.dom.btnMiniToggleRibbon = document.getElementById('btnMiniToggleRibbon');
+    this.dom.btnMiniTogglePaper = document.getElementById('btnMiniTogglePaper');
+    this.dom.btnMiniToggleThumbnails = document.getElementById('btnMiniToggleThumbnails');
+    this.dom.btnMiniSaveManual = document.getElementById('btnMiniSaveManual');
+    this.dom.btnMiniLibrary = document.getElementById('btnMiniLibrary');
+    this.dom.btnMiniClose = document.getElementById('btnMiniClose');
   }
 
   /**
@@ -1000,6 +1016,23 @@ class GoodNotesApp {
    */
   bindKeyboardShortcuts() {
     window.addEventListener('keydown', (e) => {
+      // Ctrl+S / Cmd+S: Save immediately anytime, even when typing in input/textbox
+      if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+        if (this.notebook) {
+          this.saveImmediately();
+          this.showToast('Notebook saved (Ctrl+S)');
+        }
+        return;
+      }
+
+      // F8: Toggle between Floating Minimalist Bar and Classic Ribbon
+      if (e.key === 'F8') {
+        e.preventDefault();
+        this.toggleToolbarMode();
+        return;
+      }
+
       // Ignore if user is typing in title input or sticky note / textbox
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
         return;
@@ -1396,7 +1429,7 @@ class GoodNotesApp {
       }
       this.preLassoSnapshot = null;
       this.lassoDragAnchor = null;
-      this.saveImmediately();
+      this.markDirty();
       this.renderThumbnailsSidebar();
       if (this.selectionBox) {
         this.showLassoToolbar();
@@ -1417,7 +1450,7 @@ class GoodNotesApp {
       }
       this.eraseActionModified = false;
       this.preEraseSnapshot = null;
-      this.saveImmediately();
+      this.markDirty();
       return;
     }
 
@@ -1452,7 +1485,7 @@ class GoodNotesApp {
 
       this.renderVectorCanvas();
       this.updateCurrentThumbnailDebounced();
-      this.saveImmediately();
+      this.markDirty();
       return;
     }
 
@@ -1477,7 +1510,7 @@ class GoodNotesApp {
         page.shapes.push(finalShape);
         this.renderVectorCanvas();
         this.updateCurrentThumbnailDebounced();
-        this.saveImmediately();
+        this.markDirty();
       }
       this.shapeDragStart = null;
       return;
@@ -1544,7 +1577,7 @@ class GoodNotesApp {
       this.currentStroke = null;
       this.renderVectorCanvas();
       this.updateCurrentThumbnailDebounced();
-      this.saveImmediately();
+      this.markDirty();
     }
   }
 
@@ -1731,7 +1764,7 @@ class GoodNotesApp {
       this.eraseActionModified = true;
       this.renderVectorCanvas();
       this.updateCurrentThumbnailDebounced();
-      this.saveImmediately();
+      this.markDirty();
     }
   }
 
@@ -3029,10 +3062,12 @@ class GoodNotesApp {
    * Page Management Navigation
    */
   getCurrentPage() {
+    if (!this.notebook || !this.notebook.pages) return null;
     return this.notebook.pages[this.notebook.currentPageIndex];
   }
 
   switchPage(index, smoothScroll = true) {
+    if (!this.notebook || !this.notebook.pages) return;
     if (index < 0 || index >= this.notebook.pages.length) return;
     this.clearLassoSelection();
     this.setActivePage(index, smoothScroll);
@@ -3040,18 +3075,27 @@ class GoodNotesApp {
   }
 
   goToPrevPage() {
+    if (!this.notebook || !this.notebook.pages) return;
     if (this.notebook.currentPageIndex > 0) {
       this.switchPage(this.notebook.currentPageIndex - 1, true);
     }
   }
 
   goToNextPage() {
+    if (!this.notebook || !this.notebook.pages) return;
     if (this.notebook.currentPageIndex < this.notebook.pages.length - 1) {
       this.switchPage(this.notebook.currentPageIndex + 1, true);
     }
   }
 
   updatePageCounter() {
+    if (!this.notebook || !this.notebook.pages) {
+      if (this.dom.currentPageNum) this.dom.currentPageNum.innerText = '1';
+      if (this.dom.totalPagesNum) this.dom.totalPagesNum.innerText = '1';
+      if (this.dom.btnPrevPage) this.dom.btnPrevPage.disabled = true;
+      if (this.dom.btnNextPage) this.dom.btnNextPage.disabled = true;
+      return;
+    }
     this.dom.currentPageNum.innerText = this.notebook.currentPageIndex + 1;
     this.dom.totalPagesNum.innerText = this.notebook.pages.length;
     this.dom.btnPrevPage.disabled = this.notebook.currentPageIndex === 0;
@@ -3579,6 +3623,8 @@ class GoodNotesApp {
         this.dom.activeCtx.clearRect(0, 0, this.dom.activeCanvas.width, this.dom.activeCanvas.height);
       }
     }
+
+    this.updateFloatingToolbarActiveTool();
   }
 
   setActiveColor(color) {
@@ -3598,6 +3644,7 @@ class GoodNotesApp {
     if (matchedSlot !== -1) {
       this.activeColorSlot = matchedSlot;
     }
+    this.updateFloatingToolbarColor();
   }
 
   /**
@@ -3767,7 +3814,7 @@ class GoodNotesApp {
    */
   takeSnapshot() {
     const page = this.getCurrentPage();
-    if (!page) return null;
+    if (!page || !this.notebook) return null;
     return {
       pageIndex: this.notebook.currentPageIndex,
       strokes: page.strokes.map(s => ({
@@ -3777,8 +3824,7 @@ class GoodNotesApp {
         width: s.width,
         opacity: s.opacity,
         blendMode: s.blendMode,
-        points: s.points.map(p => ({ x: p.x, y: p.y, pressure: p.pressure, time: p.time })),
-        cachedPath2D: s.cachedPath2D
+        points: s.points.map(p => ({ x: p.x, y: p.y, pressure: p.pressure, time: p.time }))
       })),
       shapes: page.shapes.map(sh => ({
         ...sh,
@@ -3837,7 +3883,7 @@ class GoodNotesApp {
     }
     this.updateCurrentThumbnailDebounced();
     this.updateHistoryButtons();
-    this.saveImmediately();
+    this.markDirty();
     this.showToast('Undo');
   }
 
@@ -3873,30 +3919,86 @@ class GoodNotesApp {
     }
     this.updateCurrentThumbnailDebounced();
     this.updateHistoryButtons();
-    this.saveImmediately();
+    this.markDirty();
     this.showToast('Redo');
   }
 
   updateHistoryButtons() {
-    if (this.dom.btnUndo) this.dom.btnUndo.disabled = this.undoStack.length === 0;
-    if (this.dom.btnRedo) this.dom.btnRedo.disabled = this.redoStack.length === 0;
+    const canUndo = this.undoStack.length > 0;
+    const canRedo = this.redoStack.length > 0;
+    if (this.dom.btnUndo) this.dom.btnUndo.disabled = !canUndo;
+    if (this.dom.btnRedo) this.dom.btnRedo.disabled = !canRedo;
+    if (this.dom.btnMiniUndo) this.dom.btnMiniUndo.disabled = !canUndo;
+    if (this.dom.btnMiniRedo) this.dom.btnMiniRedo.disabled = !canRedo;
   }
 
   /**
-   * Saves the notebook document instantly to local storage without debouncing lag.
+   * Marks notebook as modified with unsaved changes.
+   */
+  markDirty() {
+    this.isDirty = true;
+    this.updateSaveIndicator('unsaved');
+  }
+
+  /**
+   * Starts periodic auto-save timer: runs every 60 seconds (1 minute).
+   */
+  startAutoSaveTimer() {
+    if (this.autoSaveInterval) clearInterval(this.autoSaveInterval);
+    this.autoSaveInterval = setInterval(async () => {
+      if (this.isDirty && this.notebook && this.currentView === 'editor') {
+        await this.saveImmediately();
+      }
+    }, 60000); // 1-minute auto-save
+  }
+
+  /**
+   * Saves the notebook document to local storage without lag.
    */
   async saveImmediately() {
+    if (!this.storage || !this.notebook) return;
     this.updateSaveIndicator('saving');
-    if (this.storage && this.notebook) {
-      try {
-        // Persist undo/redo stacks with the notebook so they survive reopen
-        this.notebook._undoStack = this.undoStack || [];
-        this.notebook._redoStack = this.redoStack || [];
-        await this.storage.saveNotebookInstant(this.notebook);
-        this.updateSaveIndicator('saved');
-      } catch (err) {
-        console.warn('Instant save error:', err);
-      }
+    try {
+      // Clean and persist undo/redo stacks capped at last 30 snapshots
+      this.notebook._undoStack = (this.undoStack || []).slice(-30).map(s => ({
+        pageIndex: s.pageIndex,
+        strokes: s.strokes ? s.strokes.map(st => ({
+          id: st.id,
+          tool: st.tool,
+          color: st.color,
+          width: st.width,
+          opacity: st.opacity,
+          blendMode: st.blendMode,
+          points: st.points
+        })) : [],
+        shapes: s.shapes || [],
+        textBoxes: s.textBoxes || [],
+        stickyNotes: s.stickyNotes || [],
+        images: s.images || []
+      }));
+      this.notebook._redoStack = (this.redoStack || []).slice(-30).map(s => ({
+        pageIndex: s.pageIndex,
+        strokes: s.strokes ? s.strokes.map(st => ({
+          id: st.id,
+          tool: st.tool,
+          color: st.color,
+          width: st.width,
+          opacity: st.opacity,
+          blendMode: st.blendMode,
+          points: st.points
+        })) : [],
+        shapes: s.shapes || [],
+        textBoxes: s.textBoxes || [],
+        stickyNotes: s.stickyNotes || [],
+        images: s.images || []
+      }));
+      this.notebook.updatedAt = Date.now();
+      await this.storage.saveNotebookInstant(this.notebook);
+      this.isDirty = false;
+      this.updateSaveIndicator('saved');
+    } catch (err) {
+      console.warn('Save error:', err);
+      this.updateSaveIndicator('unsaved');
     }
   }
 
@@ -3905,6 +4007,9 @@ class GoodNotesApp {
     if (status === 'saving') {
       this.dom.saveStatusIndicator.className = 'save-status-badge saving';
       this.dom.saveStatusText.textContent = 'Saving...';
+    } else if (status === 'unsaved') {
+      this.dom.saveStatusIndicator.className = 'save-status-badge unsaved';
+      this.dom.saveStatusText.textContent = 'Unsaved changes';
     } else {
       this.dom.saveStatusIndicator.className = 'save-status-badge saved';
       this.dom.saveStatusText.textContent = 'Saved';
@@ -3912,16 +4017,19 @@ class GoodNotesApp {
   }
 
   scheduleSave() {
-    this.saveImmediately();
+    this.markDirty();
   }
 
   /**
    * Switches to the GoodNotes Document Library Home Screen.
    */
   async showLibraryView() {
-    await this.saveImmediately();
+    if (this.notebook && this.isDirty) {
+      await this.saveImmediately();
+    }
     if (this.dom.editorView) this.dom.editorView.classList.add('hidden');
     if (this.dom.libraryView) this.dom.libraryView.classList.remove('hidden');
+    if (this.dom.floatingToolbar) this.dom.floatingToolbar.classList.add('hidden');
     this.currentView = 'library';
     await this.renderLibraryView();
   }
@@ -3930,14 +4038,305 @@ class GoodNotesApp {
    * Switches back to the Document Editor Canvas.
    */
   showEditorView() {
+    if (!this.notebook) return;
     if (this.dom.libraryView) this.dom.libraryView.classList.add('hidden');
     if (this.dom.editorView) this.dom.editorView.classList.remove('hidden');
     this.currentView = 'editor';
+    this.setToolbarMode(this.toolbarMode, false);
     this.coord.invalidateCache();
     this.renderCurrentPage();
     this.renderThumbnailsSidebar();
     this.updatePageCounter();
     this.updateHistoryButtons();
+    this.updateFloatingToolbarActiveTool();
+    this.updateFloatingToolbarColor();
+  }
+
+  /**
+   * Sets toolbar layout mode: 'ribbon' (classic GoodNotes ribbon) | 'floating' (minimalist pill bar)
+   */
+  setToolbarMode(mode, showNotification = true) {
+    this.toolbarMode = mode;
+    try {
+      localStorage.setItem('goodnotes_toolbar_mode', mode);
+    } catch (e) {}
+
+    if (mode === 'floating') {
+      if (this.dom.headerBar) this.dom.headerBar.classList.add('hidden-ribbon');
+      if (this.dom.inkingRibbon) this.dom.inkingRibbon.classList.add('hidden-ribbon');
+      if (this.dom.floatingToolbar && this.currentView === 'editor') {
+        this.dom.floatingToolbar.classList.remove('hidden');
+      }
+      if (this.dom.appContainer) this.dom.appContainer.classList.add('floating-mode');
+      if (showNotification) this.showToast('Minimalist Floating Toolbar (F8 to toggle)');
+    } else {
+      if (this.dom.headerBar) this.dom.headerBar.classList.remove('hidden-ribbon');
+      if (this.dom.inkingRibbon) this.dom.inkingRibbon.classList.remove('hidden-ribbon');
+      if (this.dom.floatingToolbar) this.dom.floatingToolbar.classList.add('hidden');
+      if (this.dom.appContainer) this.dom.appContainer.classList.remove('floating-mode');
+      if (showNotification) this.showToast('Classic GoodNotes Ribbon (F8 to toggle)');
+    }
+
+    this.updateFloatingToolbarActiveTool();
+    this.updateFloatingToolbarColor();
+    this.coord.invalidateCache();
+  }
+
+  toggleToolbarMode() {
+    const newMode = this.toolbarMode === 'floating' ? 'ribbon' : 'floating';
+    this.setToolbarMode(newMode, true);
+  }
+
+  updateFloatingToolbarActiveTool() {
+    if (!this.dom.floatingToolbar) return;
+    const miniBtns = this.dom.floatingToolbar.querySelectorAll('.mini-tool-btn');
+    miniBtns.forEach(btn => {
+      const tool = btn.dataset.tool;
+      btn.classList.toggle('active', tool === this.activeTool);
+    });
+  }
+
+  updateFloatingToolbarColor() {
+    if (this.dom.miniColorDot) {
+      this.dom.miniColorDot.style.backgroundColor = this.activeColor;
+    }
+  }
+
+  closeAllMiniDropdowns() {
+    if (this.dom.miniAddDropdown) this.dom.miniAddDropdown.classList.add('hidden');
+    if (this.dom.miniColorDropdown) this.dom.miniColorDropdown.classList.add('hidden');
+    if (this.dom.miniMoreDropdown) this.dom.miniMoreDropdown.classList.add('hidden');
+  }
+
+  addStickyNoteAtCenter() {
+    const page = this.getCurrentPage();
+    if (!page) return;
+    this.pushUndoSnapshot();
+    const newNote = {
+      id: 'sticky_' + Date.now().toString(36),
+      text: '',
+      color: '#fef08a',
+      x: (page.width / 2) - 80,
+      y: (page.height / 2) - 80,
+      width: 160,
+      height: 160
+    };
+    page.stickyNotes = page.stickyNotes || [];
+    page.stickyNotes.push(newNote);
+    const domOverlay = document.getElementById(`domOverlay_${this.notebook.currentPageIndex}`) || this.dom.domOverlay;
+    if (domOverlay) {
+      this.renderDomOverlayForPage(page, domOverlay, this.coord.zoom);
+    }
+    this.markDirty();
+    this.showToast('Added sticky note');
+  }
+
+  bindFloatingToolbarEvents() {
+    // 1. Toggle between Floating Bar and Classic Ribbon
+    if (this.dom.btnToggleToolbarMode) {
+      this.dom.btnToggleToolbarMode.addEventListener('click', () => this.toggleToolbarMode());
+    }
+    if (this.dom.btnMiniClose) {
+      this.dom.btnMiniClose.addEventListener('click', () => this.setToolbarMode('ribbon', true));
+    }
+    if (this.dom.btnMiniToggleRibbon) {
+      this.dom.btnMiniToggleRibbon.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        this.setToolbarMode('ribbon', true);
+      });
+    }
+
+    // 2. Tool Activation Buttons
+    const toolButtons = [
+      { el: this.dom.btnMiniSelect, tool: 'lasso' },
+      { el: this.dom.btnMiniText, tool: 'text' },
+      { el: this.dom.btnMiniPen, tool: 'ballpoint' },
+      { el: this.dom.btnMiniEraser, tool: 'eraser' },
+      { el: this.dom.btnMiniShapes, tool: 'shapes' },
+      { el: this.dom.btnMiniLaser, tool: 'laser' }
+    ];
+
+    toolButtons.forEach(({ el, tool }) => {
+      if (!el) return;
+      el.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        this.setActiveTool(tool);
+        this.updateFloatingToolbarActiveTool();
+      });
+    });
+
+    // 3. Add Dropdown (+)
+    if (this.dom.btnMiniAdd && this.dom.miniAddDropdown) {
+      this.dom.btnMiniAdd.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasHidden = this.dom.miniAddDropdown.classList.contains('hidden');
+        this.closeAllMiniDropdowns();
+        if (wasHidden) this.dom.miniAddDropdown.classList.remove('hidden');
+      });
+    }
+
+    if (this.dom.btnMiniAddPage) {
+      this.dom.btnMiniAddPage.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        this.addNewPage();
+        this.showToast('Added new page');
+      });
+    }
+    if (this.dom.btnMiniAddImage) {
+      this.dom.btnMiniAddImage.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        if (this.dom.imageFileInput) this.dom.imageFileInput.click();
+      });
+    }
+    if (this.dom.btnMiniAddSticky) {
+      this.dom.btnMiniAddSticky.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        this.addStickyNoteAtCenter();
+      });
+    }
+
+    // 4. Color Palette Dropdown (●)
+    if (this.dom.btnMiniColor && this.dom.miniColorDropdown) {
+      this.dom.btnMiniColor.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasHidden = this.dom.miniColorDropdown.classList.contains('hidden');
+        this.closeAllMiniDropdowns();
+        if (wasHidden) this.dom.miniColorDropdown.classList.remove('hidden');
+      });
+    }
+
+    // Palette Swatches
+    if (this.dom.miniColorDropdown) {
+      const swatches = this.dom.miniColorDropdown.querySelectorAll('.mini-swatch');
+      swatches.forEach(sw => {
+        sw.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const color = sw.dataset.color;
+          if (color) {
+            this.setActiveColor(color);
+            this.updateFloatingToolbarColor();
+            this.closeAllMiniDropdowns();
+          }
+        });
+      });
+
+      // Thickness buttons
+      const thickBtns = this.dom.miniColorDropdown.querySelectorAll('.mini-thick-btn');
+      thickBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          thickBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const width = parseInt(btn.dataset.width, 10) || 4;
+          this.activeWidth = width;
+          this.toolSizes[this.activeTool] = width;
+          this.updateThicknessControlsForTool(this.activeTool, width);
+          this.showToast(`Pen width: ${width}px`);
+        });
+      });
+
+      // Custom Color Picker
+      if (this.dom.miniCustomColorPicker) {
+        this.dom.miniCustomColorPicker.addEventListener('input', (e) => {
+          this.setActiveColor(e.target.value);
+          this.updateFloatingToolbarColor();
+        });
+      }
+    }
+
+    // 5. Undo & Redo
+    if (this.dom.btnMiniUndo) {
+      this.dom.btnMiniUndo.addEventListener('click', () => this.undo());
+    }
+    if (this.dom.btnMiniRedo) {
+      this.dom.btnMiniRedo.addEventListener('click', () => this.redo());
+    }
+
+    // 6. Clear Page (Trash)
+    if (this.dom.btnMiniClear) {
+      this.dom.btnMiniClear.addEventListener('click', () => {
+        const page = this.getCurrentPage();
+        if (!page) return;
+        this.pushUndoSnapshot();
+        page.strokes = [];
+        page.shapes = [];
+        page.textBoxes = [];
+        page.stickyNotes = [];
+        this.clearLassoSelection();
+        this.renderCurrentPage();
+        this.renderThumbnailsSidebar();
+        this.markDirty();
+        this.showToast('Cleared page inking');
+      });
+    }
+
+    // 7. Export Button (↓)
+    if (this.dom.btnMiniExport) {
+      this.dom.btnMiniExport.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (this.dom.exportMenuDropdown) {
+          this.dom.exportMenuDropdown.classList.toggle('hidden');
+        } else {
+          this.exportPagePNG();
+        }
+      });
+    }
+
+    // 8. More Options Dropdown (•••)
+    if (this.dom.btnMiniMore && this.dom.miniMoreDropdown) {
+      this.dom.btnMiniMore.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasHidden = this.dom.miniMoreDropdown.classList.contains('hidden');
+        this.closeAllMiniDropdowns();
+        if (wasHidden) this.dom.miniMoreDropdown.classList.remove('hidden');
+      });
+    }
+
+    if (this.dom.btnMiniTogglePaper) {
+      this.dom.btnMiniTogglePaper.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        const page = this.getCurrentPage();
+        if (page) {
+          page.paperColor = page.paperColor === 'black' ? 'cream' : 'black';
+          this.renderCurrentPage();
+          this.markDirty();
+          this.showToast(`Paper switched to ${page.paperColor === 'black' ? 'Blackboard' : 'Cream'}`);
+        }
+      });
+    }
+
+    if (this.dom.btnMiniToggleThumbnails) {
+      this.dom.btnMiniToggleThumbnails.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        if (this.dom.thumbnailsSidebar) {
+          this.dom.thumbnailsSidebar.classList.toggle('collapsed');
+          this.coord.invalidateCache();
+        }
+      });
+    }
+
+    if (this.dom.btnMiniSaveManual) {
+      this.dom.btnMiniSaveManual.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        this.saveImmediately();
+        this.showToast('Notebook saved');
+      });
+    }
+
+    // 9. Back to Library
+    if (this.dom.btnMiniLibrary) {
+      this.dom.btnMiniLibrary.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        this.showLibraryView();
+      });
+    }
+
+    // Close floating popups when clicking elsewhere
+    document.addEventListener('click', (e) => {
+      if (this.dom.floatingToolbar && !this.dom.floatingToolbar.contains(e.target)) {
+        this.closeAllMiniDropdowns();
+      }
+    });
   }
 
   /**
@@ -3951,8 +4350,8 @@ class GoodNotesApp {
       this.libraryNotebooks = [];
     }
 
-    // Ensure active notebook is present in the list
-    if (this.notebook && !this.libraryNotebooks.some(n => n.id === this.notebook.id)) {
+    // Ensure active notebook is present in the list if open
+    if (this.notebook && this.notebook.id && !this.libraryNotebooks.some(n => n.id === this.notebook.id)) {
       this.libraryNotebooks.unshift({
         id: this.notebook.id,
         title: this.notebook.title || 'Untitled Notebook',
@@ -3965,6 +4364,11 @@ class GoodNotesApp {
         template: this.notebook.pages && this.notebook.pages[0] ? this.notebook.pages[0].template : 'ruled',
         paperColor: this.notebook.pages && this.notebook.pages[0] ? this.notebook.pages[0].paperColor : 'cream'
       });
+    }
+
+    // Toggle Resume Editor button in library header
+    if (this.dom.btnResumeEditor) {
+      this.dom.btnResumeEditor.style.display = this.notebook ? 'inline-flex' : 'none';
     }
 
     // Update filter badge counts
@@ -4132,7 +4536,7 @@ class GoodNotesApp {
   async openNotebook(notebookId) {
     try {
       this.showToast('Opening notebook...');
-      if (this.notebook && this.notebook.id !== notebookId) {
+      if (this.notebook && this.notebook.id !== notebookId && this.isDirty) {
         await this.saveImmediately();
       }
 
@@ -4143,6 +4547,7 @@ class GoodNotesApp {
       }
 
       this.notebook = doc;
+      this.isDirty = false;
       // Restore persisted undo/redo history
       this.undoStack = Array.isArray(doc._undoStack) ? doc._undoStack : [];
       this.redoStack = Array.isArray(doc._redoStack) ? doc._redoStack : [];
@@ -4431,7 +4836,9 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   window.addEventListener('beforeunload', () => {
-    if (app.storage && app.notebook) {
+    if (app.storage && app.notebook && app.isDirty) {
+      app.notebook._undoStack = (app.undoStack || []).slice(-30);
+      app.notebook._redoStack = (app.redoStack || []).slice(-30);
       app.storage.saveNotebookInstant(app.notebook);
     }
   });

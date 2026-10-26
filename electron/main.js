@@ -23,7 +23,7 @@ ipcMain.handle('save-notebook', async (event, notebookData) => {
     ensureDirectories();
     const id = notebookData.id || 'default_notebook';
     const filePath = path.join(NOTEBOOKS_DIR, `${id}.gnotes`);
-    fs.writeFileSync(filePath, JSON.stringify(notebookData, null, 2), 'utf8');
+    await fs.promises.writeFile(filePath, JSON.stringify(notebookData), 'utf8');
     return { success: true, path: filePath };
   } catch (err) {
     console.error('save-notebook error:', err);
