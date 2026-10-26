@@ -224,7 +224,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     title: 'GoodNotes App',
-    icon: path.join(__dirname, 'icon.ico'),
+    icon: process.platform === 'win32' ? path.join(__dirname, 'icon.ico') : path.join(__dirname, 'icon.png'),
     backgroundColor: '#0f172a',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
