@@ -376,29 +376,29 @@ class GoodNotesApp {
     this.dom.floatingToolbar = document.getElementById('floatingToolbar');
     this.dom.btnToggleToolbarMode = document.getElementById('btnToggleToolbarMode');
 
-    // Mini Nav & Doc Info
-    this.dom.btnMiniToggleSidebar = document.getElementById('btnMiniToggleSidebar');
-    this.dom.btnMiniLibrary = document.getElementById('btnMiniLibrary');
-    this.dom.miniDocTitleInput = document.getElementById('miniDocTitleInput');
-    this.dom.miniSaveStatusIndicator = document.getElementById('miniSaveStatusIndicator');
-    this.dom.miniSaveStatusText = document.getElementById('miniSaveStatusText');
-
-    // Mini Page Navigation
-    this.dom.btnMiniPrevPage = document.getElementById('btnMiniPrevPage');
-    this.dom.miniPageCounter = document.getElementById('miniPageCounter');
-    this.dom.miniCurrentPageNum = document.getElementById('miniCurrentPageNum');
-    this.dom.miniTotalPagesNum = document.getElementById('miniTotalPagesNum');
-    this.dom.btnMiniNextPage = document.getElementById('btnMiniNextPage');
+    // Mini Add (+) Menu
+    this.dom.btnMiniAdd = document.getElementById('btnMiniAdd');
+    this.dom.miniAddDropdown = document.getElementById('miniAddDropdown');
+    this.dom.btnMiniAddPage = document.getElementById('btnMiniAddPage');
     this.dom.btnMiniAddPageModal = document.getElementById('btnMiniAddPageModal');
+    this.dom.btnMiniAddImage = document.getElementById('btnMiniAddImage');
+    this.dom.btnMiniAddSticky = document.getElementById('btnMiniAddSticky');
 
     // Mini Inking Tools
     this.dom.btnMiniSelect = document.getElementById('btnMiniSelect');
+    this.dom.btnMiniText = document.getElementById('btnMiniText');
     this.dom.btnMiniPen = document.getElementById('btnMiniPen');
     this.dom.miniPenActiveIcon = document.getElementById('miniPenActiveIcon');
     this.dom.miniPenFlyout = document.getElementById('miniPenFlyout');
     this.dom.btnMiniPenBallpoint = document.getElementById('btnMiniPenBallpoint');
     this.dom.btnMiniPenFountain = document.getElementById('btnMiniPenFountain');
     this.dom.btnMiniPenHighlighter = document.getElementById('btnMiniPenHighlighter');
+    this.dom.miniPenThicknessValueText = document.getElementById('miniPenThicknessValueText');
+    this.dom.miniPenThickFine = document.getElementById('miniPenThickFine');
+    this.dom.miniPenThickMed = document.getElementById('miniPenThickMed');
+    this.dom.miniPenThickBold = document.getElementById('miniPenThickBold');
+    this.dom.miniPenThicknessSlider = document.getElementById('miniPenThicknessSlider');
+    this.dom.miniPenThicknessPresets = document.querySelectorAll('.mini-thickness-chips .mini-chip-btn');
 
     // Mini Eraser
     this.dom.btnMiniEraser = document.getElementById('btnMiniEraser');
@@ -417,51 +417,50 @@ class GoodNotesApp {
     this.dom.miniFillTint = document.getElementById('miniFillTint');
     this.dom.miniFillSolid = document.getElementById('miniFillSolid');
 
-    // Mini Elements
-    this.dom.btnMiniText = document.getElementById('btnMiniText');
-    this.dom.btnMiniSticky = document.getElementById('btnMiniSticky');
-    this.dom.btnMiniImage = document.getElementById('btnMiniImage');
-    this.dom.btnMiniPan = document.getElementById('btnMiniPan');
+    // Mini Laser
     this.dom.btnMiniLaser = document.getElementById('btnMiniLaser');
 
-    // Mini Colors
+    // Mini Colors & Popover
+    this.dom.btnMiniColor = document.getElementById('btnMiniColor');
+    this.dom.miniColorDot = document.getElementById('miniColorDot');
+    this.dom.miniColorDropdown = document.getElementById('miniColorDropdown');
     this.dom.miniColorPresets = document.querySelectorAll('.mini-color-preset');
-    this.dom.btnMiniPaletteTrigger = document.getElementById('btnMiniPaletteTrigger');
-    this.dom.miniPaletteFlyout = document.getElementById('miniPaletteFlyout');
-    this.dom.miniSlotIndicatorNum = document.getElementById('miniSlotIndicatorNum');
     this.dom.miniPalDots = document.querySelectorAll('.mini-pal-dot');
     this.dom.miniPaletteCustomInput = document.getElementById('miniPaletteCustomInput');
 
-    // Mini Thickness
-    this.dom.miniThickPills = document.querySelectorAll('.mini-thick-pill');
-    this.dom.btnMiniThicknessSliderTrigger = document.getElementById('btnMiniThicknessSliderTrigger');
-    this.dom.miniThicknessFlyout = document.getElementById('miniThicknessFlyout');
-    this.dom.miniStrokeWidthDisplay = document.getElementById('miniStrokeWidthDisplay');
-    this.dom.miniSliderValueText = document.getElementById('miniSliderValueText');
-    this.dom.miniSliderInput = document.getElementById('miniSliderInput');
-
-    // Mini History & Zoom
+    // Mini History & Clear
     this.dom.btnMiniUndo = document.getElementById('btnMiniUndo');
     this.dom.btnMiniRedo = document.getElementById('btnMiniRedo');
-    this.dom.btnMiniZoomOut = document.getElementById('btnMiniZoomOut');
-    this.dom.btnMiniZoomReset = document.getElementById('btnMiniZoomReset');
-    this.dom.btnMiniZoomIn = document.getElementById('btnMiniZoomIn');
-    this.dom.btnMiniFitWidth = document.getElementById('btnMiniFitWidth');
+    this.dom.btnMiniClear = document.getElementById('btnMiniClear');
 
-    // Mini Export & More
+    // Mini Export
     this.dom.btnMiniExportTrigger = document.getElementById('btnMiniExportTrigger');
     this.dom.miniExportFlyout = document.getElementById('miniExportFlyout');
     this.dom.btnMiniExportPDF = document.getElementById('btnMiniExportPDF');
     this.dom.btnMiniExportPNG = document.getElementById('btnMiniExportPNG');
     this.dom.btnMiniExportProject = document.getElementById('btnMiniExportProject');
 
+    // Mini More Dropdown & Page Nav
     this.dom.btnMiniMore = document.getElementById('btnMiniMore');
     this.dom.miniMoreDropdown = document.getElementById('miniMoreDropdown');
+    this.dom.btnMiniPrevPage = document.getElementById('btnMiniPrevPage');
+    this.dom.miniPageCounter = document.getElementById('miniPageCounter');
+    this.dom.miniCurrentPageNum = document.getElementById('miniCurrentPageNum');
+    this.dom.miniTotalPagesNum = document.getElementById('miniTotalPagesNum');
+    this.dom.btnMiniNextPage = document.getElementById('btnMiniNextPage');
+    this.dom.btnMiniZoomOut = document.getElementById('btnMiniZoomOut');
+    this.dom.btnMiniZoomReset = document.getElementById('btnMiniZoomReset');
+    this.dom.btnMiniZoomIn = document.getElementById('btnMiniZoomIn');
+    this.dom.btnMiniFitWidth = document.getElementById('btnMiniFitWidth');
     this.dom.btnMiniTogglePaper = document.getElementById('btnMiniTogglePaper');
+    this.dom.btnMiniToggleThumbnails = document.getElementById('btnMiniToggleThumbnails');
     this.dom.btnMiniToggleTheme = document.getElementById('btnMiniToggleTheme');
     this.dom.btnMiniShortcuts = document.getElementById('btnMiniShortcuts');
     this.dom.btnMiniSaveManual = document.getElementById('btnMiniSaveManual');
     this.dom.btnMiniToggleRibbon = document.getElementById('btnMiniToggleRibbon');
+
+    // Mini Shell
+    this.dom.btnMiniLibrary = document.getElementById('btnMiniLibrary');
     this.dom.btnMiniClose = document.getElementById('btnMiniClose');
   }
 
@@ -3758,6 +3757,26 @@ class GoodNotesApp {
     if (this.dom.miniPaletteCustomInput) {
       this.dom.miniPaletteCustomInput.value = activeColor;
     }
+    this.updateFloatingToolbarColor();
+  }
+
+  updateFloatingToolbarColor() {
+    const activeColor = this.colorSlots[this.activeColorSlot] || this.activeColor;
+    if (this.dom.miniColorDot) {
+      this.dom.miniColorDot.style.backgroundColor = activeColor;
+    }
+    if (this.dom.miniPaletteCustomInput) {
+      this.dom.miniPaletteCustomInput.value = activeColor;
+    }
+    if (this.dom.miniColorPresets) {
+      this.dom.miniColorPresets.forEach((preset, idx) => {
+        const color = this.colorSlots[idx] || '#0f172a';
+        preset.dataset.color = color;
+        preset.dataset.slot = idx;
+        preset.style.setProperty('--preset-color', color);
+        preset.classList.toggle('active', idx === this.activeColorSlot);
+      });
+    }
   }
 
   /**
@@ -3843,10 +3862,30 @@ class GoodNotesApp {
       pill.classList.toggle('active', Math.abs(pWidth - width) < (config.step * 0.9));
     });
 
+    // Sync mini pen flyout thickness controls
+    if (this.dom.miniPenThicknessSlider) {
+      this.dom.miniPenThicknessSlider.value = width;
+    }
+    if (this.dom.miniPenThicknessValueText) {
+      this.dom.miniPenThicknessValueText.innerText = `${width}${config.unit}`;
+    }
+    if (this.dom.miniPenThicknessPresets) {
+      this.dom.miniPenThicknessPresets.forEach(chip => {
+        const pWidth = parseFloat(chip.dataset.width);
+        chip.classList.toggle('active', Math.abs(pWidth - width) < (config.step * 0.9));
+      });
+    }
+
     // If eraser tool, also sync the eraser size circle buttons
     if (this.activeTool === 'eraser' && this.dom.eraserSizeButtons) {
       this.dom.eraserSizeButtons.forEach(btn => {
         const sz = parseFloat(btn.dataset.eraserSize);
+        btn.classList.toggle('active', Math.abs(sz - width) < 2);
+      });
+    }
+    if (this.activeTool === 'eraser' && this.dom.miniEraserSizes) {
+      this.dom.miniEraserSizes.forEach(btn => {
+        const sz = parseFloat(btn.dataset.size);
         btn.classList.toggle('active', Math.abs(sz - width) < 2);
       });
     }
@@ -3887,28 +3926,23 @@ class GoodNotesApp {
       });
     }
 
-    // Update 3 mini pills with this tool's presets
-    if (this.dom.miniThickPills) {
-      this.dom.miniThickPills.forEach((pill, idx) => {
-        const presetVal = presets[idx] || 2.0;
-        pill.dataset.width = presetVal;
-        pill.title = `${tool.toUpperCase()} Width: ${presetVal}${config.unit}`;
-        pill.classList.toggle('active', Math.abs(presetVal - width) < (config.step * 0.9));
+    // Sync mini pen flyout thickness controls
+    if (this.dom.miniPenThicknessSlider) {
+      this.dom.miniPenThicknessSlider.min = config.min;
+      this.dom.miniPenThicknessSlider.max = config.max;
+      this.dom.miniPenThicknessSlider.step = config.step;
+      this.dom.miniPenThicknessSlider.value = width;
+    }
+    if (this.dom.miniPenThicknessValueText) {
+      this.dom.miniPenThicknessValueText.innerText = `${width}${config.unit}`;
+    }
+    if (this.dom.miniPenThicknessPresets) {
+      this.dom.miniPenThicknessPresets.forEach((chip, idx) => {
+        const presetVal = presets[idx] || (idx === 0 ? 1.5 : idx === 1 ? 3.0 : 6.0);
+        chip.dataset.width = presetVal;
+        chip.innerText = idx === 0 ? `Fine (${presetVal})` : idx === 1 ? `Med (${presetVal})` : `Bold (${presetVal})`;
+        chip.classList.toggle('active', Math.abs(presetVal - width) < (config.step * 0.9));
       });
-    }
-
-    // Sync mini slider and readouts
-    if (this.dom.miniSliderInput) {
-      this.dom.miniSliderInput.min = config.min;
-      this.dom.miniSliderInput.max = config.max;
-      this.dom.miniSliderInput.step = config.step;
-      this.dom.miniSliderInput.value = width;
-    }
-    if (this.dom.miniSliderValueText) {
-      this.dom.miniSliderValueText.innerText = `${width}${config.unit}`;
-    }
-    if (this.dom.miniStrokeWidthDisplay) {
-      this.dom.miniStrokeWidthDisplay.innerText = `${width}${config.unit}`;
     }
 
     // If eraser tool, also sync the eraser size circle buttons
@@ -4269,9 +4303,11 @@ class GoodNotesApp {
   }
 
   closeAllMiniDropdowns() {
+    if (this.dom.miniAddDropdown) this.dom.miniAddDropdown.classList.add('hidden');
     if (this.dom.miniPenFlyout) this.dom.miniPenFlyout.classList.add('hidden');
     if (this.dom.miniEraserFlyout) this.dom.miniEraserFlyout.classList.add('hidden');
     if (this.dom.miniShapesFlyout) this.dom.miniShapesFlyout.classList.add('hidden');
+    if (this.dom.miniColorDropdown) this.dom.miniColorDropdown.classList.add('hidden');
     if (this.dom.miniPaletteFlyout) this.dom.miniPaletteFlyout.classList.add('hidden');
     if (this.dom.miniThicknessFlyout) this.dom.miniThicknessFlyout.classList.add('hidden');
     if (this.dom.miniExportFlyout) this.dom.miniExportFlyout.classList.add('hidden');
@@ -4302,57 +4338,27 @@ class GoodNotesApp {
   }
 
   bindFloatingToolbarEvents() {
-    // 1. Sidebar Toggle
-    if (this.dom.btnMiniToggleSidebar) {
-      this.dom.btnMiniToggleSidebar.addEventListener('click', () => {
+    // 1. Select / Lasso Tool
+    if (this.dom.btnMiniSelect) {
+      this.dom.btnMiniSelect.addEventListener('click', () => {
         this.closeAllMiniDropdowns();
-        if (this.dom.thumbnailsSidebar) {
-          this.dom.thumbnailsSidebar.classList.toggle('collapsed');
-          this.coord.invalidateCache();
-        }
+        this.setActiveTool('lasso');
       });
     }
 
-    // 2. Library Back Button
-    if (this.dom.btnMiniLibrary) {
-      this.dom.btnMiniLibrary.addEventListener('click', () => {
+    // 2. Add / Insert Element Dropdown (+)
+    if (this.dom.btnMiniAdd) {
+      this.dom.btnMiniAdd.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasHidden = this.dom.miniAddDropdown ? this.dom.miniAddDropdown.classList.contains('hidden') : true;
         this.closeAllMiniDropdowns();
-        this.showLibraryView();
+        if (wasHidden && this.dom.miniAddDropdown) this.dom.miniAddDropdown.classList.remove('hidden');
       });
     }
-
-    // 3. Document Title Inline Editing
-    if (this.dom.miniDocTitleInput) {
-      this.dom.miniDocTitleInput.addEventListener('change', () => {
-        if (!this.notebook) return;
-        const newTitle = this.dom.miniDocTitleInput.value.trim() || 'Untitled Notebook';
-        this.notebook.title = newTitle;
-        this.updateDocTitleDisplay(newTitle);
-        this.markDirty();
-        this.showToast(`Notebook renamed: ${newTitle}`);
-      });
-      this.dom.miniDocTitleInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') this.dom.miniDocTitleInput.blur();
-      });
-    }
-
-    // 4. Page Navigation Cluster
-    if (this.dom.btnMiniPrevPage) {
-      this.dom.btnMiniPrevPage.addEventListener('click', () => {
+    if (this.dom.btnMiniAddPage) {
+      this.dom.btnMiniAddPage.addEventListener('click', () => {
         this.closeAllMiniDropdowns();
-        this.prevPage();
-      });
-    }
-    if (this.dom.miniPageCounter) {
-      this.dom.miniPageCounter.addEventListener('click', () => {
-        this.closeAllMiniDropdowns();
-        this.jumpToPagePrompt();
-      });
-    }
-    if (this.dom.btnMiniNextPage) {
-      this.dom.btnMiniNextPage.addEventListener('click', () => {
-        this.closeAllMiniDropdowns();
-        this.nextPage();
+        this.addNewPage();
       });
     }
     if (this.dom.btnMiniAddPageModal) {
@@ -4361,16 +4367,28 @@ class GoodNotesApp {
         this.openTemplateModal();
       });
     }
-
-    // 5. Inking Tools: Lasso
-    if (this.dom.btnMiniSelect) {
-      this.dom.btnMiniSelect.addEventListener('click', () => {
+    if (this.dom.btnMiniAddImage) {
+      this.dom.btnMiniAddImage.addEventListener('click', () => {
         this.closeAllMiniDropdowns();
-        this.setActiveTool('lasso');
+        if (this.dom.imageFileInput) this.dom.imageFileInput.click();
+      });
+    }
+    if (this.dom.btnMiniAddSticky) {
+      this.dom.btnMiniAddSticky.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        this.addStickyNoteAtCenter();
       });
     }
 
-    // Pen Tool & Flyout
+    // 3. Text Tool (T)
+    if (this.dom.btnMiniText) {
+      this.dom.btnMiniText.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        this.setActiveTool('text');
+      });
+    }
+
+    // 4. Pen Tool & Flyout (Types + Thickness)
     if (this.dom.btnMiniPen) {
       this.dom.btnMiniPen.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -4412,8 +4430,28 @@ class GoodNotesApp {
         this.closeAllMiniDropdowns();
       });
     }
+    // Pen Thickness presets & slider
+    if (this.dom.miniPenThicknessPresets) {
+      this.dom.miniPenThicknessPresets.forEach(chip => {
+        chip.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const w = parseFloat(chip.dataset.width);
+          if (!isNaN(w)) {
+            this.setActiveWidth(w);
+          }
+        });
+      });
+    }
+    if (this.dom.miniPenThicknessSlider) {
+      this.dom.miniPenThicknessSlider.addEventListener('input', (e) => {
+        const w = parseFloat(e.target.value);
+        if (!isNaN(w)) {
+          this.setActiveWidth(w);
+        }
+      });
+    }
 
-    // Eraser Tool & Flyout
+    // 5. Eraser Tool & Flyout
     if (this.dom.btnMiniEraser) {
       this.dom.btnMiniEraser.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -4491,7 +4529,7 @@ class GoodNotesApp {
       });
     }
 
-    // Shapes Tool & Flyout
+    // 6. Shapes Tool & Flyout
     if (this.dom.btnMiniShapes) {
       this.dom.btnMiniShapes.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -4541,31 +4579,7 @@ class GoodNotesApp {
       }
     });
 
-    // Elements: Text, Sticky, Image, Hand, Laser
-    if (this.dom.btnMiniText) {
-      this.dom.btnMiniText.addEventListener('click', () => {
-        this.closeAllMiniDropdowns();
-        this.setActiveTool('text');
-      });
-    }
-    if (this.dom.btnMiniSticky) {
-      this.dom.btnMiniSticky.addEventListener('click', () => {
-        this.closeAllMiniDropdowns();
-        this.addStickyNoteAtCenter();
-      });
-    }
-    if (this.dom.btnMiniImage) {
-      this.dom.btnMiniImage.addEventListener('click', () => {
-        this.closeAllMiniDropdowns();
-        if (this.dom.imageFileInput) this.dom.imageFileInput.click();
-      });
-    }
-    if (this.dom.btnMiniPan) {
-      this.dom.btnMiniPan.addEventListener('click', () => {
-        this.closeAllMiniDropdowns();
-        this.setActiveTool('pan');
-      });
-    }
+    // 7. Laser Tool
     if (this.dom.btnMiniLaser) {
       this.dom.btnMiniLaser.addEventListener('click', () => {
         this.closeAllMiniDropdowns();
@@ -4573,44 +4587,22 @@ class GoodNotesApp {
       });
     }
 
-    // 6. Color Slots (3 GoodNotes Slots) & Palette Flyout
+    // 8. Color Dot & Dropdown
+    if (this.dom.btnMiniColor) {
+      this.dom.btnMiniColor.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasHidden = this.dom.miniColorDropdown ? this.dom.miniColorDropdown.classList.contains('hidden') : true;
+        this.closeAllMiniDropdowns();
+        if (wasHidden && this.dom.miniColorDropdown) this.dom.miniColorDropdown.classList.remove('hidden');
+      });
+    }
     if (this.dom.miniColorPresets) {
       this.dom.miniColorPresets.forEach((preset, idx) => {
         preset.addEventListener('click', (e) => {
           e.stopPropagation();
           const slotIdx = parseInt(preset.dataset.slot ?? idx, 10);
-          if (this.activeColorSlot === slotIdx && preset.classList.contains('active')) {
-            const wasHidden = this.dom.miniPaletteFlyout.classList.contains('hidden');
-            this.closeAllMiniDropdowns();
-            if (wasHidden) {
-              if (this.dom.miniSlotIndicatorNum) this.dom.miniSlotIndicatorNum.innerText = (slotIdx + 1).toString();
-              this.dom.miniPaletteFlyout.classList.remove('hidden');
-            }
-          } else {
-            this.closeAllMiniDropdowns();
-            this.activateColorSlot(slotIdx);
-          }
+          this.activateColorSlot(slotIdx);
         });
-        preset.addEventListener('contextmenu', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const slotIdx = parseInt(preset.dataset.slot ?? idx, 10);
-          this.activeColorSlot = slotIdx;
-          this.closeAllMiniDropdowns();
-          if (this.dom.miniSlotIndicatorNum) this.dom.miniSlotIndicatorNum.innerText = (slotIdx + 1).toString();
-          this.dom.miniPaletteFlyout.classList.remove('hidden');
-        });
-      });
-    }
-    if (this.dom.btnMiniPaletteTrigger) {
-      this.dom.btnMiniPaletteTrigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const wasHidden = this.dom.miniPaletteFlyout.classList.contains('hidden');
-        this.closeAllMiniDropdowns();
-        if (wasHidden) {
-          if (this.dom.miniSlotIndicatorNum) this.dom.miniSlotIndicatorNum.innerText = (this.activeColorSlot + 1).toString();
-          this.dom.miniPaletteFlyout.classList.remove('hidden');
-        }
       });
     }
     if (this.dom.miniPalDots) {
@@ -4620,7 +4612,6 @@ class GoodNotesApp {
           const color = dot.dataset.color;
           if (color) {
             this.setSlotColor(this.activeColorSlot, color);
-            this.closeAllMiniDropdowns();
           }
         });
       });
@@ -4631,50 +4622,36 @@ class GoodNotesApp {
       });
     }
 
-    // 7. Thickness Controls & Slider Flyout
-    if (this.dom.miniThickPills) {
-      this.dom.miniThickPills.forEach((pill) => {
-        pill.addEventListener('click', () => {
-          const width = parseFloat(pill.dataset.width);
-          if (!isNaN(width)) this.setActiveWidth(width);
-        });
-      });
-    }
-    if (this.dom.btnMiniThicknessSliderTrigger) {
-      this.dom.btnMiniThicknessSliderTrigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const wasHidden = this.dom.miniThicknessFlyout.classList.contains('hidden');
-        this.closeAllMiniDropdowns();
-        if (wasHidden) this.dom.miniThicknessFlyout.classList.remove('hidden');
-      });
-    }
-    if (this.dom.miniSliderInput) {
-      this.dom.miniSliderInput.addEventListener('input', (e) => {
-        this.setActiveWidth(parseFloat(e.target.value));
-      });
-    }
-
-    // 8. History & Zoom
+    // 9 & 10. History (Undo / Redo)
     if (this.dom.btnMiniUndo) this.dom.btnMiniUndo.addEventListener('click', () => this.undo());
     if (this.dom.btnMiniRedo) this.dom.btnMiniRedo.addEventListener('click', () => this.redo());
-    if (this.dom.btnMiniZoomOut) this.dom.btnMiniZoomOut.addEventListener('click', () => this.applyZoom(1 / 1.15));
-    if (this.dom.btnMiniZoomReset) {
-      this.dom.btnMiniZoomReset.addEventListener('click', () => {
-        this.coord.setZoom(1.0);
-        this.updateZoomDisplay();
+
+    // 11. Clear Page
+    if (this.dom.btnMiniClear) {
+      this.dom.btnMiniClear.addEventListener('click', () => {
+        const page = this.getCurrentPage();
+        if (!page) return;
+        this.pushUndoSnapshot();
+        page.strokes = [];
+        page.shapes = [];
+        page.textBoxes = [];
+        page.stickyNotes = [];
+        this.clearLassoSelection();
         this.renderCurrentPage();
+        this.renderThumbnailsSidebar();
+        this.markDirty();
+        this.closeAllMiniDropdowns();
+        this.showToast('Cleared page inking');
       });
     }
-    if (this.dom.btnMiniZoomIn) this.dom.btnMiniZoomIn.addEventListener('click', () => this.applyZoom(1.15));
-    if (this.dom.btnMiniFitWidth) this.dom.btnMiniFitWidth.addEventListener('click', () => this.fitToWidth());
 
-    // 9. Export Menu
+    // 12. Export Menu
     if (this.dom.btnMiniExportTrigger) {
       this.dom.btnMiniExportTrigger.addEventListener('click', (e) => {
         e.stopPropagation();
-        const wasHidden = this.dom.miniExportFlyout.classList.contains('hidden');
+        const wasHidden = this.dom.miniExportFlyout ? this.dom.miniExportFlyout.classList.contains('hidden') : true;
         this.closeAllMiniDropdowns();
-        if (wasHidden) this.dom.miniExportFlyout.classList.remove('hidden');
+        if (wasHidden && this.dom.miniExportFlyout) this.dom.miniExportFlyout.classList.remove('hidden');
       });
     }
     if (this.dom.btnMiniExportPDF) {
@@ -4696,15 +4673,43 @@ class GoodNotesApp {
       });
     }
 
-    // 10. More Options Dropdown
+    // 13. More Options Dropdown
     if (this.dom.btnMiniMore) {
       this.dom.btnMiniMore.addEventListener('click', (e) => {
         e.stopPropagation();
-        const wasHidden = this.dom.miniMoreDropdown.classList.contains('hidden');
+        const wasHidden = this.dom.miniMoreDropdown ? this.dom.miniMoreDropdown.classList.contains('hidden') : true;
         this.closeAllMiniDropdowns();
-        if (wasHidden) this.dom.miniMoreDropdown.classList.remove('hidden');
+        if (wasHidden && this.dom.miniMoreDropdown) this.dom.miniMoreDropdown.classList.remove('hidden');
       });
     }
+    if (this.dom.btnMiniPrevPage) {
+      this.dom.btnMiniPrevPage.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        this.prevPage();
+      });
+    }
+    if (this.dom.miniPageCounter) {
+      this.dom.miniPageCounter.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        this.jumpToPagePrompt();
+      });
+    }
+    if (this.dom.btnMiniNextPage) {
+      this.dom.btnMiniNextPage.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        this.nextPage();
+      });
+    }
+    if (this.dom.btnMiniZoomOut) this.dom.btnMiniZoomOut.addEventListener('click', () => this.applyZoom(1 / 1.15));
+    if (this.dom.btnMiniZoomReset) {
+      this.dom.btnMiniZoomReset.addEventListener('click', () => {
+        this.coord.setZoom(1.0);
+        this.updateZoomDisplay();
+        this.renderCurrentPage();
+      });
+    }
+    if (this.dom.btnMiniZoomIn) this.dom.btnMiniZoomIn.addEventListener('click', () => this.applyZoom(1.15));
+    if (this.dom.btnMiniFitWidth) this.dom.btnMiniFitWidth.addEventListener('click', () => this.fitToWidth());
     if (this.dom.btnMiniTogglePaper) {
       this.dom.btnMiniTogglePaper.addEventListener('click', () => {
         this.closeAllMiniDropdowns();
@@ -4714,6 +4719,15 @@ class GoodNotesApp {
           this.renderCurrentPage();
           this.markDirty();
           this.showToast(`Paper switched to ${page.paperColor === 'black' ? 'Blackboard' : 'Cream'}`);
+        }
+      });
+    }
+    if (this.dom.btnMiniToggleThumbnails) {
+      this.dom.btnMiniToggleThumbnails.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        if (this.dom.thumbnailsSidebar) {
+          this.dom.thumbnailsSidebar.classList.toggle('collapsed');
+          this.coord.invalidateCache();
         }
       });
     }
@@ -4742,12 +4756,23 @@ class GoodNotesApp {
         this.setToolbarMode('ribbon', true);
       });
     }
+
+    // 14. Library View
+    if (this.dom.btnMiniLibrary) {
+      this.dom.btnMiniLibrary.addEventListener('click', () => {
+        this.closeAllMiniDropdowns();
+        this.showLibraryView();
+      });
+    }
+
+    // 15. Red Close Button -> switches to Ribbon
     if (this.dom.btnMiniClose) {
       this.dom.btnMiniClose.addEventListener('click', () => {
         this.closeAllMiniDropdowns();
         this.setToolbarMode('ribbon', true);
       });
     }
+
     if (this.dom.btnToggleToolbarMode) {
       this.dom.btnToggleToolbarMode.addEventListener('click', () => this.toggleToolbarMode());
     }

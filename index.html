@@ -305,275 +305,198 @@
     </header>
 
     <!-- ======================================================== -->
-    <!-- FLOATING STUDIO TOOLBAR (ALL-IN-ONE COMPLETE FUNCTIONS)  -->
+    <!-- FLOATING MINIMALIST PILL TOOLBAR (EXACT SCREENSHOT MATCH)-->
     <!-- ======================================================== -->
     <div id="floatingToolbar" class="floating-pill-toolbar hidden">
 
-      <!-- 1. Left Cluster: Sidebar, Library, Title & Save Status -->
-      <div class="mini-cluster mini-nav-cluster">
-        <button class="mini-tool-btn" id="btnMiniToggleSidebar" title="Toggle Page Thumbnails / Outline (Tab)" aria-label="Toggle Page Thumbnails">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-        </button>
+      <!-- 1. Pointer / Select Arrow (Lasso) -->
+      <button class="mini-tool-btn" id="btnMiniSelect" data-tool="lasso" title="Select & Lasso (L)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 3l7 18 3-7 7-3L3 3z"/></svg>
+      </button>
 
-        <button class="mini-tool-btn" id="btnMiniLibrary" title="Back to Documents Library">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-        </button>
-
-        <div class="mini-title-wrapper" title="Click to rename notebook">
-          <input type="text" id="miniDocTitleInput" class="mini-title-input" value="Notebook" spellcheck="false" maxlength="40" />
-        </div>
-
-        <div id="miniSaveStatusIndicator" class="mini-save-status saved" title="All edits saved">
-          <span class="mini-save-dot"></span>
-          <span id="miniSaveStatusText" class="mini-save-text">Saved</span>
-        </div>
-      </div>
-
-      <div class="mini-divider"></div>
-
-      <!-- 2. Page Navigation Cluster -->
-      <div class="mini-cluster mini-page-cluster">
-        <button class="mini-tool-btn" id="btnMiniPrevPage" title="Previous Page (PgUp or [)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <button class="mini-page-counter" id="miniPageCounter" title="Click to jump to page">
-          <span id="miniCurrentPageNum">1</span> / <span id="miniTotalPagesNum">1</span>
-        </button>
-        <button class="mini-tool-btn" id="btnMiniNextPage" title="Next Page (PgDn or ])">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-        <button class="mini-tool-btn accent-hover" id="btnMiniAddPageModal" title="Add Page with Template Picker">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
-      </div>
-
-      <div class="mini-divider"></div>
-
-      <!-- 3. Primary Inking Tools -->
-      <div class="mini-cluster mini-tools-cluster">
-        <!-- Lasso Selection -->
-        <button class="mini-tool-btn" id="btnMiniSelect" data-tool="lasso" title="Lasso Selection (L)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 22a5 5 0 0 1-2-4c0-3.87 3.13-7 7-7h1"/><path d="M17 7c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/><path d="M14 7c0 4.42-3.58 8-8 8A8 8 0 0 1 3 4.5"/><path d="m18 10 3 3-3 3"/></svg>
-        </button>
-
-        <!-- Pens Dropdown (Ballpoint, Fountain, Highlighter) -->
-        <div class="mini-dropdown-wrapper">
-          <button class="mini-tool-btn active has-chevron" id="btnMiniPen" data-tool="ballpoint" title="Pens: Ballpoint, Fountain, Highlighter (Click again or right-click to switch)">
-            <svg id="miniPenActiveIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
-            <svg class="mini-chevron" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div id="miniPenFlyout" class="mini-dropdown-panel hidden">
-            <div class="mini-panel-header">Pen Types</div>
-            <button class="mini-menu-item active" id="btnMiniPenBallpoint" data-pen="ballpoint">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><circle cx="11" cy="11" r="2"/></svg>
-              <span>Ballpoint Pen</span>
-            </button>
-            <button class="mini-menu-item" id="btnMiniPenFountain" data-pen="fountain">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-              <span>Fountain Pen (Pressure/Velocity)</span>
-            </button>
-            <button class="mini-menu-item" id="btnMiniPenHighlighter" data-pen="highlighter">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11-6 6v3h3l6-6"/><path d="m22 2-2.5 2.5a2.121 2.121 0 0 1-3 0l-4-4a2.121 2.121 0 0 1 0-3L15 0"/><path d="M14 4l6 6"/></svg>
-              <span>Highlighter (Multiply Blend)</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Eraser Dropdown (Modes, Sizes, Highlighter Only, Clear Page) -->
-        <div class="mini-dropdown-wrapper">
-          <button class="mini-tool-btn has-chevron" id="btnMiniEraser" data-tool="eraser" title="Eraser (E) - Click again or right-click for options">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 20H7L3 16C2 15 2 13 3 12L13 2L22 11L20 20Z"/><path d="M17 17L7 7"/></svg>
-            <svg class="mini-chevron" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div id="miniEraserFlyout" class="mini-dropdown-panel hidden">
-            <div class="mini-panel-header">Eraser Mode</div>
-            <div class="mini-chips-row">
-              <button type="button" class="mini-chip-btn active" id="miniEraserStroke">Stroke</button>
-              <button type="button" class="mini-chip-btn" id="miniEraserPrecision">Precision</button>
-            </div>
-            <div class="mini-dropdown-divider"></div>
-            <div class="mini-panel-header">Eraser Size</div>
-            <div class="mini-eraser-sizes">
-              <button type="button" class="mini-size-circle" data-size="10" title="Small (10px)">
-                <span class="dot-sm"></span> Small
-              </button>
-              <button type="button" class="mini-size-circle active" data-size="22" title="Medium (22px)">
-                <span class="dot-md"></span> Med
-              </button>
-              <button type="button" class="mini-size-circle" data-size="45" title="Large (45px)">
-                <span class="dot-lg"></span> Large
-              </button>
-            </div>
-            <div class="mini-dropdown-divider"></div>
-            <label class="mini-checkbox-label">
-              <input type="checkbox" id="miniChkEraseHighlighterOnly" />
-              <span>Erase Highlighter Only</span>
-            </label>
-            <div class="mini-dropdown-divider"></div>
-            <button type="button" class="mini-menu-item danger" id="miniBtnClearPage">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              <span>Clear Page Inking</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Shapes Dropdown (9 Shapes + 3 Fills) -->
-        <div class="mini-dropdown-wrapper">
-          <button class="mini-tool-btn has-chevron" id="btnMiniShapes" data-tool="shapes" title="Shapes (S) - Click again or right-click to pick shape">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="7" cy="7" r="4"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
-            <svg class="mini-chevron" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div id="miniShapesFlyout" class="mini-dropdown-panel shapes-flyout hidden">
-            <div class="mini-panel-header">Shapes</div>
-            <div class="mini-shapes-grid">
-              <button type="button" class="mini-shape-btn active" data-shape="auto" title="Auto-Snap">Auto</button>
-              <button type="button" class="mini-shape-btn" data-shape="line" title="Line">Line</button>
-              <button type="button" class="mini-shape-btn" data-shape="arrow" title="Arrow">Arrow</button>
-              <button type="button" class="mini-shape-btn" data-shape="rectangle" title="Rectangle">Rect</button>
-              <button type="button" class="mini-shape-btn" data-shape="roundedRectangle" title="Rounded">Round</button>
-              <button type="button" class="mini-shape-btn" data-shape="circle" title="Circle">Circle</button>
-              <button type="button" class="mini-shape-btn" data-shape="triangle" title="Triangle">Tri</button>
-              <button type="button" class="mini-shape-btn" data-shape="diamond" title="Diamond">Dia</button>
-              <button type="button" class="mini-shape-btn" data-shape="star" title="Star">Star</button>
-            </div>
-            <div class="mini-dropdown-divider"></div>
-            <div class="mini-panel-header">Fill Mode</div>
-            <div class="mini-chips-row">
-              <button type="button" class="mini-chip-btn active" data-fill="none" id="miniFillNone">None</button>
-              <button type="button" class="mini-chip-btn" data-fill="tint" id="miniFillTint">Tint</button>
-              <button type="button" class="mini-chip-btn" data-fill="solid" id="miniFillSolid">Solid</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Text Tool (T) -->
-        <button class="mini-tool-btn" id="btnMiniText" data-tool="text" title="Text Box (T)">
-          <span class="mini-t-icon">T</span>
-        </button>
-
-        <!-- Sticky Note Tool -->
-        <button class="mini-tool-btn" id="btnMiniSticky" data-tool="sticky" title="Sticky Note (N)">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"/><path d="M15 3v6h6"/></svg>
-        </button>
-
-        <!-- Insert Image -->
-        <button class="mini-tool-btn" id="btnMiniImage" title="Insert Image...">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        </button>
-
-        <!-- Hand / Pan Tool -->
-        <button class="mini-tool-btn" id="btnMiniPan" data-tool="pan" title="Hand Pan (Space)">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
-        </button>
-
-        <!-- Laser Pointer -->
-        <button class="mini-tool-btn" id="btnMiniLaser" data-tool="laser" title="Laser Pointer (Presentation)">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
-        </button>
-      </div>
-
-      <div class="mini-divider"></div>
-
-      <!-- 4. GoodNotes 3 Customizable Color Slots + Full Palette -->
-      <div class="mini-cluster mini-colors-cluster">
-        <button class="mini-color-preset active" id="btnMiniSlot0" data-slot="0" style="--preset-color: #0f172a;" title="Slot 1 - Click to select, click again or right-click to change color"></button>
-        <button class="mini-color-preset" id="btnMiniSlot1" data-slot="1" style="--preset-color: #2563eb;" title="Slot 2 - Click to select, click again or right-click to change color"></button>
-        <button class="mini-color-preset" id="btnMiniSlot2" data-slot="2" style="--preset-color: #dc2626;" title="Slot 3 - Click to select, click again or right-click to change color"></button>
-
-        <div class="mini-dropdown-wrapper">
-          <button class="mini-tool-btn" id="btnMiniPaletteTrigger" title="Custom Color Palette & Slot Config">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="8" cy="10" r="1.5" fill="currentColor"/><circle cx="12" cy="7" r="1.5" fill="currentColor"/><circle cx="16" cy="10" r="1.5" fill="currentColor"/><circle cx="15" cy="15" r="1.5" fill="currentColor"/></svg>
-          </button>
-          <div id="miniPaletteFlyout" class="mini-dropdown-panel palette-flyout hidden">
-            <div class="mini-panel-header">Customizing Slot <span id="miniSlotIndicatorNum">1</span></div>
-            <div class="mini-palette-section-title">GoodNotes Classic</div>
-            <div class="mini-palette-dots">
-              <span class="mini-pal-dot" data-color="#0f172a" style="background:#0f172a" title="Slate Black"></span>
-              <span class="mini-pal-dot" data-color="#475569" style="background:#475569" title="Cool Slate"></span>
-              <span class="mini-pal-dot" data-color="#2563eb" style="background:#2563eb" title="Royal Blue"></span>
-              <span class="mini-pal-dot" data-color="#0284c7" style="background:#0284c7" title="Sky Blue"></span>
-              <span class="mini-pal-dot" data-color="#059669" style="background:#059669" title="Emerald Green"></span>
-              <span class="mini-pal-dot" data-color="#d97706" style="background:#d97706" title="Amber Orange"></span>
-              <span class="mini-pal-dot" data-color="#dc2626" style="background:#dc2626" title="Crimson Red"></span>
-              <span class="mini-pal-dot" data-color="#7c3aed" style="background:#7c3aed" title="Deep Violet"></span>
-            </div>
-            <div class="mini-palette-section-title">Highlighter & Pastel</div>
-            <div class="mini-palette-dots">
-              <span class="mini-pal-dot" data-color="#fef08a" style="background:#fef08a" title="Pastel Yellow"></span>
-              <span class="mini-pal-dot" data-color="#bbf7d0" style="background:#bbf7d0" title="Pastel Mint"></span>
-              <span class="mini-pal-dot" data-color="#fed7aa" style="background:#fed7aa" title="Pastel Peach"></span>
-              <span class="mini-pal-dot" data-color="#bae6fd" style="background:#bae6fd" title="Pastel Sky"></span>
-              <span class="mini-pal-dot" data-color="#fbcfe8" style="background:#fbcfe8" title="Pastel Rose"></span>
-              <span class="mini-pal-dot" data-color="#e9d5ff" style="background:#e9d5ff" title="Pastel Lavender"></span>
-            </div>
-            <div class="mini-dropdown-divider"></div>
-            <div class="mini-custom-color-row">
-              <label for="miniPaletteCustomInput">Custom Color:</label>
-              <input type="color" id="miniPaletteCustomInput" value="#0f172a" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="mini-divider"></div>
-
-      <!-- 5. Thickness Controls (3 Presets + Slider Flyout) -->
-      <div class="mini-cluster mini-thickness-cluster">
-        <button class="mini-thick-pill active" id="miniThickPill0" data-index="0" title="Fine Stroke">
-          <span class="mini-thick-dot dot-sm"></span>
-        </button>
-        <button class="mini-thick-pill" id="miniThickPill1" data-index="1" title="Medium Stroke">
-          <span class="mini-thick-dot dot-md"></span>
-        </button>
-        <button class="mini-thick-pill" id="miniThickPill2" data-index="2" title="Thick Stroke">
-          <span class="mini-thick-dot dot-lg"></span>
-        </button>
-
-        <div class="mini-dropdown-wrapper">
-          <button class="mini-thick-slider-btn" id="btnMiniThicknessSliderTrigger" title="Adjust Stroke Width Slider">
-            <span id="miniStrokeWidthDisplay">2.5px</span>
-          </button>
-          <div id="miniThicknessFlyout" class="mini-dropdown-panel thickness-flyout hidden">
-            <div class="mini-panel-header">Width: <span id="miniSliderValueText">2.5px</span></div>
-            <input type="range" id="miniSliderInput" min="1" max="40" step="0.5" value="2.5" class="mini-range-slider" />
-          </div>
-        </div>
-      </div>
-
-      <div class="mini-divider"></div>
-
-      <!-- 6. History (Undo / Redo) -->
-      <div class="mini-cluster mini-history-cluster">
-        <button class="mini-tool-btn" id="btnMiniUndo" title="Undo (Ctrl+Z)" disabled>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
-        </button>
-        <button class="mini-tool-btn" id="btnMiniRedo" title="Redo (Ctrl+Y)" disabled>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
-        </button>
-      </div>
-
-      <div class="mini-divider"></div>
-
-      <!-- 7. Zoom Controls (Zoom Out, 100%, Zoom In, Fit Width) -->
-      <div class="mini-cluster mini-zoom-cluster">
-        <button class="mini-tool-btn" id="btnMiniZoomOut" title="Zoom Out (Ctrl -)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-        </button>
-        <button class="mini-zoom-badge" id="btnMiniZoomReset" title="Reset Zoom to 100%">100%</button>
-        <button class="mini-tool-btn" id="btnMiniZoomIn" title="Zoom In (Ctrl +)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-        </button>
-        <button class="mini-tool-btn" id="btnMiniFitWidth" title="Fit Page to Width">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-        </button>
-      </div>
-
-      <div class="mini-divider"></div>
-
-      <!-- 8. Share & Export Dropdown -->
+      <!-- 2. Add / Insert Element (+) -->
       <div class="mini-dropdown-wrapper">
-        <button class="mini-tool-btn" id="btnMiniExportTrigger" title="Share & Export">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        <button class="mini-tool-btn" id="btnMiniAdd" title="Add / Insert Element (+)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div id="miniAddDropdown" class="mini-dropdown-panel hidden">
+          <button class="mini-menu-item" id="btnMiniAddPage">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            <span>Add New Page</span>
+          </button>
+          <button class="mini-menu-item" id="btnMiniAddPageModal">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <span>Choose Template...</span>
+          </button>
+          <button class="mini-menu-item" id="btnMiniAddImage">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Insert Image...</span>
+          </button>
+          <button class="mini-menu-item" id="btnMiniAddSticky">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>Add Sticky Note</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. Text Tool (T) -->
+      <button class="mini-tool-btn" id="btnMiniText" data-tool="text" title="Text Box (T)">
+        <span class="mini-t-icon">T</span>
+      </button>
+
+      <!-- 4. Pen Tool with Popover (Pen types + Thickness) -->
+      <div class="mini-dropdown-wrapper">
+        <button class="mini-tool-btn active" id="btnMiniPen" data-tool="ballpoint" title="Pen (P) - Click again for thickness & types">
+          <svg id="miniPenActiveIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+        </button>
+        <div id="miniPenFlyout" class="mini-dropdown-panel hidden">
+          <div class="mini-panel-header">Pen Types</div>
+          <button class="mini-menu-item active" id="btnMiniPenBallpoint" data-pen="ballpoint">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+            <span>Ballpoint Pen</span>
+          </button>
+          <button class="mini-menu-item" id="btnMiniPenFountain" data-pen="fountain">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            <span>Fountain Pen (Calligraphy)</span>
+          </button>
+          <button class="mini-menu-item" id="btnMiniPenHighlighter" data-pen="highlighter">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11-6 6v3h3l6-6"/><path d="m22 2-2.5 2.5a2.121 2.121 0 0 1-3 0l-4-4a2.121 2.121 0 0 1 0-3L15 0"/><path d="M14 4l6 6"/></svg>
+            <span>Highlighter (Multiply)</span>
+          </button>
+          <div class="mini-dropdown-divider"></div>
+          <div class="mini-panel-header">Pen Thickness: <span id="miniPenThicknessValueText">3.0 px</span></div>
+          <div class="mini-chips-row mini-thickness-chips">
+            <button type="button" class="mini-chip-btn" id="miniPenThickFine" data-width="1.5">Fine (1.5)</button>
+            <button type="button" class="mini-chip-btn active" id="miniPenThickMed" data-width="3">Med (3.0)</button>
+            <button type="button" class="mini-chip-btn" id="miniPenThickBold" data-width="6">Bold (6.0)</button>
+          </div>
+          <input type="range" id="miniPenThicknessSlider" min="0.5" max="30" step="0.5" value="3" class="mini-range-slider" />
+        </div>
+      </div>
+
+      <!-- 5. Eraser Tool with Popover -->
+      <div class="mini-dropdown-wrapper">
+        <button class="mini-tool-btn" id="btnMiniEraser" data-tool="eraser" title="Eraser (E) - Click again for options">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 20H7L3 16C2 15 2 13 3 12L13 2L22 11L20 20Z"/><path d="M17 17L7 7"/></svg>
+        </button>
+        <div id="miniEraserFlyout" class="mini-dropdown-panel hidden">
+          <div class="mini-panel-header">Eraser Mode</div>
+          <div class="mini-chips-row">
+            <button type="button" class="mini-chip-btn active" id="miniEraserStroke">Stroke</button>
+            <button type="button" class="mini-chip-btn" id="miniEraserPrecision">Precision</button>
+          </div>
+          <div class="mini-dropdown-divider"></div>
+          <div class="mini-panel-header">Eraser Size</div>
+          <div class="mini-eraser-sizes">
+            <button type="button" class="mini-size-circle" data-size="10" title="Small (10px)">Small</button>
+            <button type="button" class="mini-size-circle active" data-size="22" title="Medium (22px)">Med</button>
+            <button type="button" class="mini-size-circle" data-size="45" title="Large (45px)">Large</button>
+          </div>
+          <div class="mini-dropdown-divider"></div>
+          <label class="mini-checkbox-label">
+            <input type="checkbox" id="miniChkEraseHighlighterOnly" />
+            <span>Erase Highlighter Only</span>
+          </label>
+          <div class="mini-dropdown-divider"></div>
+          <button type="button" class="mini-menu-item danger" id="miniBtnClearPage">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span>Clear Page Inking</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 6. Shapes Tool with Popover -->
+      <div class="mini-dropdown-wrapper">
+        <button class="mini-tool-btn" id="btnMiniShapes" data-tool="shapes" title="Shapes (S) - Click again for shapes & fill">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="12" r="4"/></svg>
+        </button>
+        <div id="miniShapesFlyout" class="mini-dropdown-panel shapes-flyout hidden">
+          <div class="mini-panel-header">Shape Type</div>
+          <div class="mini-shapes-grid">
+            <button type="button" class="mini-shape-btn active" data-shape="auto" title="Auto-Snap Hand Drawings">Auto</button>
+            <button type="button" class="mini-shape-btn" data-shape="line" title="Straight Line">Line</button>
+            <button type="button" class="mini-shape-btn" data-shape="arrow" title="Directional Arrow">Arrow</button>
+            <button type="button" class="mini-shape-btn" data-shape="rectangle" title="Rectangle">Rect</button>
+            <button type="button" class="mini-shape-btn" data-shape="roundedRectangle" title="Rounded Rectangle">Round</button>
+            <button type="button" class="mini-shape-btn" data-shape="circle" title="Circle / Ellipse">Circle</button>
+            <button type="button" class="mini-shape-btn" data-shape="triangle" title="Equilateral Triangle">Tri</button>
+            <button type="button" class="mini-shape-btn" data-shape="diamond" title="Diamond">Dia</button>
+            <button type="button" class="mini-shape-btn" data-shape="star" title="Five-Point Star">Star</button>
+          </div>
+          <div class="mini-dropdown-divider"></div>
+          <div class="mini-panel-header">Fill Mode</div>
+          <div class="mini-chips-row">
+            <button type="button" class="mini-chip-btn active" data-fill="none" id="miniFillNone">None</button>
+            <button type="button" class="mini-chip-btn" data-fill="tint" id="miniFillTint">Tint</button>
+            <button type="button" class="mini-chip-btn" data-fill="solid" id="miniFillSolid">Solid</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Laser Pointer (⊙) -->
+      <button class="mini-tool-btn" id="btnMiniLaser" data-tool="laser" title="Laser Pointer">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+      </button>
+
+      <!-- 8. Color Picker Dot (●) with Popover -->
+      <div class="mini-dropdown-wrapper">
+        <button class="mini-tool-btn mini-color-btn" id="btnMiniColor" title="Choose Ink Color & Slots">
+          <span class="mini-color-dot" id="miniColorDot" style="background-color: #2563eb;"></span>
+        </button>
+        <div id="miniColorDropdown" class="mini-dropdown-panel palette-flyout hidden">
+          <div class="mini-panel-header">Favorite Color Slots</div>
+          <div class="mini-chips-row mini-color-slots-row">
+            <button type="button" class="mini-color-preset active" id="btnMiniSlot0" data-slot="0" style="--preset-color: #0f172a;" title="Slot 1"></button>
+            <button type="button" class="mini-color-preset" id="btnMiniSlot1" data-slot="1" style="--preset-color: #2563eb;" title="Slot 2"></button>
+            <button type="button" class="mini-color-preset" id="btnMiniSlot2" data-slot="2" style="--preset-color: #dc2626;" title="Slot 3"></button>
+          </div>
+          <div class="mini-palette-section-title">GoodNotes Palette</div>
+          <div class="mini-palette-dots">
+            <span class="mini-pal-dot" data-color="#0f172a" style="background:#0f172a" title="Slate Black"></span>
+            <span class="mini-pal-dot" data-color="#475569" style="background:#475569" title="Cool Slate"></span>
+            <span class="mini-pal-dot" data-color="#2563eb" style="background:#2563eb" title="Royal Blue"></span>
+            <span class="mini-pal-dot" data-color="#0284c7" style="background:#0284c7" title="Sky Blue"></span>
+            <span class="mini-pal-dot" data-color="#059669" style="background:#059669" title="Emerald Green"></span>
+            <span class="mini-pal-dot" data-color="#d97706" style="background:#d97706" title="Amber Orange"></span>
+            <span class="mini-pal-dot" data-color="#dc2626" style="background:#dc2626" title="Crimson Red"></span>
+            <span class="mini-pal-dot" data-color="#7c3aed" style="background:#7c3aed" title="Deep Violet"></span>
+            <span class="mini-pal-dot" data-color="#fef08a" style="background:#fef08a" title="Pastel Yellow"></span>
+            <span class="mini-pal-dot" data-color="#bbf7d0" style="background:#bbf7d0" title="Pastel Mint"></span>
+            <span class="mini-pal-dot" data-color="#fed7aa" style="background:#fed7aa" title="Pastel Peach"></span>
+            <span class="mini-pal-dot" data-color="#bae6fd" style="background:#bae6fd" title="Pastel Sky"></span>
+            <span class="mini-pal-dot" data-color="#fbcfe8" style="background:#fbcfe8" title="Pastel Rose"></span>
+            <span class="mini-pal-dot" data-color="#ffffff" style="background:#ffffff; border:1px solid rgba(255,255,255,0.4);" title="White"></span>
+          </div>
+          <div class="mini-dropdown-divider"></div>
+          <div class="mini-custom-color-row">
+            <label for="miniPaletteCustomInput">Custom Color:</label>
+            <input type="color" id="miniPaletteCustomInput" value="#2563eb" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="mini-divider"></div>
+
+      <!-- 9. Undo (↶) -->
+      <button class="mini-tool-btn" id="btnMiniUndo" title="Undo (Ctrl+Z)" disabled>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+      </button>
+
+      <!-- 10. Redo (↷) -->
+      <button class="mini-tool-btn" id="btnMiniRedo" title="Redo (Ctrl+Y)" disabled>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
+      </button>
+
+      <!-- 11. Clear Page (🗑) -->
+      <button class="mini-tool-btn" id="btnMiniClear" title="Clear Page Inking">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </button>
+
+      <!-- 12. Export / Download (↓) -->
+      <div class="mini-dropdown-wrapper">
+        <button class="mini-tool-btn" id="btnMiniExportTrigger" title="Export PDF / PNG / Project">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </button>
         <div id="miniExportFlyout" class="mini-dropdown-panel right-aligned hidden">
           <div class="mini-panel-header">Export Document</div>
@@ -593,15 +516,34 @@
         </div>
       </div>
 
-      <!-- 9. More & Preferences (•••) -->
+      <!-- 13. More Options (•••) -->
       <div class="mini-dropdown-wrapper">
-        <button class="mini-tool-btn" id="btnMiniMore" title="More Options">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>
+        <button class="mini-tool-btn" id="btnMiniMore" title="More Options & Pages">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>
         </button>
         <div id="miniMoreDropdown" class="mini-dropdown-panel right-aligned hidden">
+          <div class="mini-panel-header">Pages</div>
+          <div class="mini-chips-row">
+            <button type="button" class="mini-chip-btn" id="btnMiniPrevPage" title="Previous Page">◄ Prev</button>
+            <button type="button" class="mini-chip-btn" id="miniPageCounter" title="Click to jump to page"><span id="miniCurrentPageNum">1</span>/<span id="miniTotalPagesNum">1</span></button>
+            <button type="button" class="mini-chip-btn" id="btnMiniNextPage" title="Next Page">Next ►</button>
+          </div>
+          <div class="mini-dropdown-divider"></div>
+          <div class="mini-panel-header">Zoom</div>
+          <div class="mini-chips-row">
+            <button type="button" class="mini-chip-btn" id="btnMiniZoomOut" title="Zoom Out">−</button>
+            <button type="button" class="mini-chip-btn" id="btnMiniZoomReset" title="Reset Zoom">100%</button>
+            <button type="button" class="mini-chip-btn" id="btnMiniZoomIn" title="Zoom In">+</button>
+            <button type="button" class="mini-chip-btn" id="btnMiniFitWidth" title="Fit Width">Fit</button>
+          </div>
+          <div class="mini-dropdown-divider"></div>
           <button class="mini-menu-item" id="btnMiniTogglePaper">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
             <span>Toggle Dark/Blackboard Paper</span>
+          </button>
+          <button class="mini-menu-item" id="btnMiniToggleThumbnails">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            <span>Toggle Thumbnails (Tab)</span>
           </button>
           <button class="mini-menu-item" id="btnMiniToggleTheme">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -623,9 +565,14 @@
         </div>
       </div>
 
-      <!-- 10. Red Close / Switch to Classic Ribbon Button -->
+      <!-- 14. Library / Documents Back Icon -->
+      <button class="mini-tool-btn" id="btnMiniLibrary" title="Back to Documents Library">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      </button>
+
+      <!-- 15. Red Close / Switch Button (✕) -->
       <button class="mini-close-btn" id="btnMiniClose" title="Switch to Classic Ribbon">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
 
